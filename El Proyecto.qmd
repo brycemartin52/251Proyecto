@@ -1,0 +1,97 @@
+---
+title: "Project"
+author: "Derek & Bryce"
+format: html
+editor: visual
+---
+
+## Data Prep
+
+```{r}
+library(brms)
+```
+
+```{r}
+# Original vectors
+N <- c(9663, 117, 76, 116, 15, 71, 115, 1, 144, 473, 327, 94, 90, 6, 178, 61, 480, 432, 513, 243, 4492, 140, 112, 362, 632, 57, 371, 59, 2339, 40)
+logN <- log(N)
+
+pop1 <- data.frame(
+  Rating = c(4.6, 3.4, 3.8, 4.2, 3.5, 4.2, 3.2, 1, 3.9, 4.4, 4.8, 3.4, 4.6, 5, 4.4, 4.6, 4.3, 4.5, 2.6, 3.4, 4.8, 4.9, 3, 4.5, 4.4, 4.6, 3.8, 3.1, 4.5, 4.8),
+  logN = logN,
+  Population = "Pop1"
+)
+
+
+N <- c(55, 78, 103, 59, 1596, 54, 12, 26, 1, 310, 8, 1448, 1, 40, 1, 13, 51, 28, 25, 2388, 135, 82, 15, 48, 66, 21, 29, 1112, 951, 91)
+logN <- log(N)
+
+pop2 <- data.frame(
+  Rating = c(4.5, 4.9, 4.3, 4.8, 4.2, 4.3, 5, 5, 5, 3.9, 5, 4.1, 5, 4.6, 1, 4.8, 4.5, 4.9, 4.8, 4, 4.5, 3.7, 4, 4.3, 3.8, 5, 5, 4.7, 3.9, 4.3),
+  logN = logN,
+  Population = "Pop2"
+)
+
+data <- rbind(pop1, pop2)
+```
+
+You can add options to executable code like this
+
+```{r}
+# Fit Bayesian linear regression model
+fit <- brm(
+  formula = Rating ~ logN + (1 + logN | Population),  # Random intercept and slope for Population
+  data = data,
+  family = gaussian(),  # Normal likelihood
+  prior = c(
+    prior(normal(4, 2), class = "Intercept"),
+    prior(normal(0, 10), class = "b"),
+    prior(cauchy(0, 20), class = "sd")  # Prior on group-level standard deviations
+  ),
+  iter = 4000,  # Number of iterations
+  chains = 4,   # Number of MCMC chains
+  seed = 123    # For reproducibility
+)
+```
+
+```{r}
+summary(fit)
+```
+
+```{r}
+plot(fit)
+```
+
+```{r}
+# Extract posterior samples as a data frame
+posterior_samples <- as_draws_df(fit)
+
+# View the posterior samples for specific parameters
+posterior_samples_subset <- posterior_samples[, grepl("^r_Population|sigma", colnames(posterior_samples))]
+
+# Display the results
+head(posterior_samples_subset)
+```
+
+```{r}
+posterior_samples
+```
+
+```{r}
+# Extract group-level effects
+post_samples <- as_draws_df(fit)
+
+# Compute differences between populations
+alpha_diff <- post_samples$r_Population[1, ] - post_samples$r_Population[2, ]
+beta_diff <- post_samples$r_Population[3, ] - post_samples$r_Population[4, ]
+sigma_diff <- post_samples$sigma_Pop1 - post_samples$sigma_Pop2
+
+# Visualize
+library(ggplot2)
+
+ggplot(data.frame(alpha_diff), aes(x = alpha_diff)) +
+  geom_density(fill = "blue", alpha = 0.5) +
+  labs(title = "Posterior Distribution of Alpha Difference", x = "Difference in Alpha", y = "Density")
+```
+
+The `echo: false` option disables the printing of code (only output is displayed).
