@@ -5,6 +5,14 @@ format: pdf
 editor: visual
 ---
 
+Project idea: we want to compare the quality of the two closest malls to BYU: Provo City Center & University Parkway. We will be gathering sample ratings by randomly picking stores from each and getting their ratings off of google maps. Our parameters of interest are the average rating for the stores in each location (our ‘populations’), as well as the standard deviation of the ratings. Another thing we could look into is any correlation between number of ratings and overall rating.
+
+We’ll likely model the ratings with a beta distribution (adjusting the 5 star to be ‘100%’ and 1 star to be ‘0%’) and model the count data with a normal distribution (taking the log to transform the data).
+
+The rating data is easy to (manually) get from google maps, and we’ll randomly pick stores based on the malls’ respective websites with all their stores listed. 
+
+We hope that at the end of this analysis we will be able to determine the overall quality of both malls, how close the stores tend to be of similar quality, and possibly even if the the more ‘niche’ stores (stores with lower counts of ratings) have a different rating on average than the high rating count stores. This can help local residents make informed decisions on which mall to go to when they are looking for consistent quality or fewer people.
+
 ## Data Prep
 
 ```{r}
@@ -70,14 +78,18 @@ Because there isn't a known posterior distribution for our rating data, we use a
 Our model for a single store would be:
 
 $$
-x_i = \text{Average rating for the ith store at a specific mall} \\ \newline
+x_i = \text{Average rating for the ith store at a specific mall}
 $$
 
 $$
-\text{Data} = x_1, x_2, ... x_n
-\newline
-\text{Prior: } X \sim Unif(0,1)\\
-\newline
+\text{Data} = x_1, x_2, ..., x_n
+$$
+
+$$
+\text{Prior: } X \sim Unif(0,1)
+$$
+
+$$
 \text{Likelihood: }f(Data | \mu, \sigma^2) \sim Beta(3,1.5)
 $$
 
