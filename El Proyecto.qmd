@@ -120,7 +120,7 @@ sigma2.1.save[1] <- sigma2
 
 ### Added for Metropolis RW
 accept.mu <- 0
-s.1.mu <- .27
+s.1.mu <- .32
 
 #Gibbs Sampling Algorithm For Pop1 (University Mall)
 for(t in 2:iters){
@@ -253,20 +253,25 @@ hist3D(joint.dens$x, joint.dens$y, joint.dens$z, xlab="mu", ylab="sigma2", phi=3
 # posterior distribution of mu 
 par(mfrow=c(1,2))
 
-plot(density(mu.1.use), xlab=expression(mu), ylab="density", main=expression(pi(mu~"(University Mall)|"~data)))
-curve(dnorm(x, lambda, sqrt(tau2)), lty=2, add=T)
+plot(density(mu.1.use), xlab=expression(mu), ylab="density", main=expression(pi(mu~"(University Mall) |"~data)))
+curve(dunif(x, 1, 5), lty=2, add=T)
 legend("topleft", c("Prior", "Posterior"), lty=c(2, 1))
 
-plot(density(mu.2.use), xlab=expression(mu), ylab="density", main=expression(pi(mu~"(Provo Mall)|"~data)))
-curve(dnorm(x, lambda, sqrt(tau2)), lty=2, add=T)
+plot(density(mu.2.use), xlab=expression(mu), ylab="density", main=expression(pi(mu~"(Provo Mall) |"~data)))
+curve(dunif(x, 1, 5), lty=2, add=T)
 legend("topleft", c("Prior", "Posterior"), lty=c(2, 1))
+
+# Posterior distribution of the dif(mu.1 and mu.2)
+diffs <- mu.1.use - mu.2.use
+plot(density(diffs), xlab=expression(mu), ylab="density", main=expression(pi(mu~"(University Mall - Provo) |"~data)))
+legend("topleft", c("Distribution \nof the differences"), lty=c(1, 1))
 
 #95% credible interval
 quantile(mu.1.use, c(.025, .975))
 quantile(mu.2.use, c(.025, .975))
-#Given our data and prior knowledge, there is a 98% 
-#chance that the true average refraction index on this 
-# portion of the window is between 1.519 and 1.521.
+# Given our data and prior knowledge, there is a 95% chance that
+# the true average rating for University mall is between 3.81 and 4.25 and
+# the true average rating for Provo mall is between 4.34 and 4.63
 
 #posterior mean of the average mall ratings
 mean(mu.1.use)
@@ -297,23 +302,5 @@ quantile(sigma2.2.use, c(.025, .975))
 #95% credible interval for sigma
 quantile(sqrt(sigma2.2.use), c(.01, .99))
 
-#There is a 95% chance, given our data and prior knowledge, 
-#that the standard deviation of the refraction index on 
-#this portion of the glass is between 0.0009 and 0.0024.
-
-  
-############################################
-# ## Posterior predictive: pi(X*|data)
-# # We already have draws of (mu, sigma2) from the posterior distribution pi(mu, sigma2|data).  We can use those values to get draws of X*: 
-# x.star <- rnorm(length(mu.use), mu.use, sqrt(sigma2.use))  
-# plot(density(x.star), main="Posterior Predictive Distribution for Refraction Index of the Window", xlab="X*")
-# 
-# #95% credible interval for the refraction index of a randomly selected piece of glass from this portion of the window
-# quantile(x.star, c(.025, .975))
-# # Would it be reasonable to find a piece of glass from this portion of the window with a refraction index higher than 1.52004 (max in the data)?
-# mean(x.star>1.52004)
-# #given our data and prior knowledge, there is a 49% chance of observing a piece of glass with refraction index greater than 1.52004.  So yes, very reasonable.  
-# #(Note: more data would help us minimize that uncertainty for the range of refraction indices.)
-# 
-# #Question that might be interesting to explore: How can I make it so that this probability is very low? Play around with the prior distributions to see what happens.
+#While the variation in the plots may look different, their 95% confidence intervals overlap quite a bit, and we cannot conclude there is a difference between the two variations
 ```
