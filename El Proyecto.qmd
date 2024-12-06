@@ -58,40 +58,176 @@ fit <- brm(
 summary(fit)
 ```
 
-```{r}
-plot(fit)
-```
+Given the output of the confidence intervals, we can not confidently say that the log(n) has any significant correlative effect on the ratings.
+
+We are therefore skip trying to estimate that as a parameter and estimate only two things for each population: the true ratings for each and the standard deviation of those ratings.
+
+Because there isn't a known posterior distribution for our rating data, we will use a Monte Carlo approximation to analyze our data. Our prior will be an uninformative uniform distribution, and our likelihood doesn't follow any distributions that we know of, however a good approximation may be the beta distribution. While we acknowledge that the beta distribution doesn't allow for the endpoints, we will slightly change the data on the endpoints (5 star to 4.99, 1 star to 1.01). Since we aren't predicting how any individual would rate the store but the stores overall rating, we can confidently say that a given true store's rating is not equal to exactly 1 or 5 stars.
 
 ```{r}
-# Extract posterior samples as a data frame
-posterior_samples <- as_draws_df(fit)
+############################
+# Gibbs Sampling Example: Refraction Index
+# Nov 12, 2024
+# Updated with "What if Didn't Know Full Conditionals" 
+# December 3, 2024
+############################
 
-# View the posterior samples for specific parameters
-posterior_samples_subset <- posterior_samples[, grepl("^r_Population|sigma", colnames(posterior_samples))]
+#load the library for the inverse gamma distribution 
+library(invgamma)
 
-# Display the results
-head(posterior_samples_subset)
+# PRIOR PARAMETERS
+# Prior parameters for mu: 
+lambda <- 1.515 #I googled the typical window refraction index
+tau2 <- 1 #relatively large given the range of typical glass refractions (~1.5-1.52)
+# Prior parameters for sigma2: 
+# if typical range for glass refraction is ~1.5-1.52, 
+# then an approximate standard deviation would be 0.02/6
+# so an approximate variance would be 0.00001111
+gamma <- 2.05
+phi <- 0.00001167
+#prior expected value of variance: 
+phi/(gamma-1)
+
+# Plot the prior distributions to make sure they seem reasonable
+par(mfrow=c(1,2))
+curve(dnorm(x, lambda, sqrt(tau2)), xlim=c(-1, 5), ylab="prior density", main=expression(pi(mu)), xlab=expression(mu))
+curve(dinvgamma(x, gamma, phi), xlim=c(0, 0.00005), ylab="prior density", main=expression(pi(sigma^2)), xlab=expression(sigma^2))
+
+# COLLECT DATA
+refract <- c(1.51996, 1.51997, 1.51998, 1.52, 1.51998, 1.52004, 1.52, 1.52001, 1.52, 1.51997)
+n <- length(refract)
+
+# POSTERIOR DISTRIBUTIONS: Must use Gibbs Sampling Algorithm to approximate
+
+#Starting values (This example has extreme starting values just for illustrative purposes)
+mu <- 1.5 #-200  #more reasonable starting value: 1.5
+sigma2 <- 0.001 #10000 #more reasonable starting value: 0.001
+
+# initializations for the Gibbs Sampling Algorithm
+iters <- 10000
+mu.save <- rep(0, iters)
+mu.save[1] <- mu
+sigma2.save <- rep(0, iters)
+sigma2.save[1] <- sigma2
+
+### Added for Metropolis RW
+accept.mu <- 0
+s.mu <- 0.001
+
+#Gibbs Sampling Algorithm
+for(t in 2:iters){
+  
+  # #What if the full conditional distribution was unknown??
+  # 
+  # # Full conditional of mu (update the value of the parameters)
+  # lambda.p <- (tau2*sum(refract) + sigma2*lambda)/(tau2*n + sigma2)
+  # tau2.p <- sigma2*tau2/(tau2*n + sigma2)
+  
+  # #sample a new value of mu
+  # mu <- rnorm(1, lambda.p, sqrt(tau2.p))
+  
+  # #Then, use Metropolis RW to draw from the full conditional distribution...
+  mu.star <- rnorm(1, mu, s.mu)
+  log.r <- sum(dnorm(refract, mu.star, sqrt(sigma2), log=T)) + dnorm(mu.star, lambda, sqrt(tau2), log=T) - sum(dnorm(refract, mu, sqrt(sigma2), log=T)) - dnorm(mu, lambda, sqrt(tau2), log=T)
+  logu <- log(runif(1))
+  if(logu < log.r){
+  	mu <- mu.star
+  	accept.mu <- accept.mu + 1
+  }
+  
+  #save the value of mu
+  mu.save[t] <- mu
+  
+  # full conditional of sigma2 (update the value of the parameters)
+  gamma.p <- gamma + n/2
+  phi.p <- phi + sum((refract - mu)^2 )/2
+  
+  #sample new value of sigma2
+  sigma2 <- rinvgamma(1, gamma.p, phi.p)
+  #alternatively, instead of using the invgamma library, 
+  #you could sample from the gamma distribution and invert the draw: 
+  #sigma2 <- 1/rgamma(1, gamma.p, phi.p)
+  
+  #save the value of sigma2
+  sigma2.save[t] <- sigma2
+  
+}
+
+##Added to check acceptance rates
+accept.mu/iters
+
+# Trace plots (decide if we need to throw out the first few values)
+par(mfrow=c(1,2))
+plot(mu.save, type='l')
+plot(sigma2.save, type='l')
+
+
+#throw out the first few values
+burn <- 100
+mu.use <- mu.save[-(1:burn)]
+sigma2.use <- sigma2.save[-(1:burn)]
+plot(mu.use, type='l')
+plot(sigma2.use, type='l')
+
+#SUMMARIZE THE POSTERIOR DISTRIBUTION(S)
+
+# joint posterior distribution of mu and sigma2
+library(MASS)
+par(mfrow=c(1,1))
+joint.dens <- kde2d(mu.use, sigma2.use, n=100)
+persp(joint.dens, xlab="mu", ylab="sigma2", phi=30, theta=45)
+
+library(plot3D)
+hist3D(joint.dens$x, joint.dens$y, joint.dens$z, xlab="mu", ylab="sigma2", phi=30, theta=45)
+
+# posterior distribution of mu 
+#plot 
+plot(density(mu.use), xlab=expression(mu), ylab="density", main=expression(pi(mu~"|"~data)))
+#add prior
+curve(dnorm(x, lambda, sqrt(tau2)), lty=2, add=T)
+#add legend
+legend("topleft", c("Prior", "Posterior"), lty=c(2, 1))
+
+#98% credible interval
+quantile(mu.use, c(.01, .99))
+#Given our data and prior knowledge, there is a 98% 
+#chance that the true average refraction index on this 
+# portion of the window is between 1.519 and 1.521.
+
+#posterior mean of the average refraction index
+mean(mu.use)
+
+# posterior distribution of sigma2
+par(mfrow=c(1,1))
+plot(density(sigma2.use), xlab=expression(sigma^2), main=expression(pi(sigma^2~"|"~data)))
+#add prior
+curve(dinvgamma(x, gamma, phi), add=T, lty=2)
+#add legend
+legend("topright", c("Prior", "Posterior"), lty=c(2,1))
+
+#98% credible interval for sigma2
+quantile(sigma2.use, c(.01, .99))
+#98% credible interval for sigma
+quantile(sqrt(sigma2.use), c(.01, .99))
+#There is a 98% chance, given our data and prior knowledge, 
+#that the standard deviation of the refraction index on 
+#this portion of the glass is between 0.0009 and 0.0024.
+
+  
+############################################
+## Posterior predictive: pi(X*|data)
+# We already have draws of (mu, sigma2) from the posterior distribution pi(mu, sigma2|data).  We can use those values to get draws of X*: 
+x.star <- rnorm(length(mu.use), mu.use, sqrt(sigma2.use))  
+plot(density(x.star), main="Posterior Predictive Distribution for Refraction Index of the Window", xlab="X*")
+
+#95% credible interval for the refraction index of a randomly selected piece of glass from this portion of the window
+quantile(x.star, c(.025, .975))
+# Would it be reasonable to find a piece of glass from this portion of the window with a refraction index higher than 1.52004 (max in the data)?
+mean(x.star>1.52004)
+#given our data and prior knowledge, there is a 49% chance of observing a piece of glass with refraction index greater than 1.52004.  So yes, very reasonable.  
+#(Note: more data would help us minimize that uncertainty for the range of refraction indices.)
+
+#Question that might be interesting to explore: How can I make it so that this probability is very low? Play around with the prior distributions to see what happens.
+
+
 ```
-
-```{r}
-posterior_samples
-```
-
-```{r}
-# Extract group-level effects
-post_samples <- as_draws_df(fit)
-
-# Compute differences between populations
-alpha_diff <- post_samples$r_Population[1, ] - post_samples$r_Population[2, ]
-beta_diff <- post_samples$r_Population[3, ] - post_samples$r_Population[4, ]
-sigma_diff <- post_samples$sigma_Pop1 - post_samples$sigma_Pop2
-
-# Visualize
-library(ggplot2)
-
-ggplot(data.frame(alpha_diff), aes(x = alpha_diff)) +
-  geom_density(fill = "blue", alpha = 0.5) +
-  labs(title = "Posterior Distribution of Alpha Difference", x = "Difference in Alpha", y = "Density")
-```
-
-The `echo: false` option disables the printing of code (only output is displayed).
