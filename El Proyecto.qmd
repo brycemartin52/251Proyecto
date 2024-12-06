@@ -15,6 +15,7 @@ library(brms)
 # Original vectors
 N <- c(9663, 117, 76, 116, 15, 71, 115, 1, 144, 473, 327, 94, 90, 6, 178, 61, 480, 432, 513, 243, 4492, 140, 112, 362, 632, 57, 371, 59, 2339, 40)
 logN <- log(N)
+
 Rating1 = c(4.6, 3.4, 3.8, 4.2, 3.5, 4.2, 3.2, 1.01, 3.9, 4.4, 4.8, 3.4, 4.6, 4.99, 4.4, 4.6, 4.3, 4.5, 2.6, 3.4, 4.8, 4.9, 3, 4.5, 4.4, 4.6, 3.8, 3.1, 4.5, 4.8)
 
 pop1 <- data.frame(
@@ -90,7 +91,8 @@ curve(dinvgamma(x, gamma, phi), xlim=c(0, .0005), ylab="prior density", main=exp
 
 ```{r}
 # COLLECT DATA
-pop1 <- c(4.6, 3.4, 3.8, 4.2, 3.5, 4.2, 3.2, 1, 3.9, 4.4, 4.8, 3.4, 4.6, 5, 4.4, 4.6, 4.3, 4.5, 2.6, 3.4, 4.8, 4.9, 3, 4.5, 4.4, 4.6, 3.8, 3.1, 4.5, 4.8)
+pop1 <- Rating1
+pop2 <- Rating2
 
 n <- length(pop1)
 
@@ -99,6 +101,17 @@ n <- length(pop1)
 #Starting values (This example has extreme starting values just for illustrative purposes)
 mu <- 4 #-200  #more reasonable starting value: 1.5
 sigma2 <- 1 #10000 #more reasonable starting value: 0.001
+
+library(MASS)
+
+# Set the shape and rate parameters for the gamma distribution
+alpha = 3
+beta = 1.5
+
+# Generate alpha and beta parameters using the gamma distribution
+
+
+# Print the generated alpha and beta parameters
 
 # initializations for the Gibbs Sampling Algorithm
 iters <- 10000
@@ -109,8 +122,7 @@ sigma2.save[1] <- sigma2
 
 ### Added for Metropolis RW
 accept.mu <- 0
-s.mu <- 0.01
-
+s.mu <- 4
 
 #Gibbs Sampling Algorithm
 for(t in 2:iters){
@@ -125,26 +137,31 @@ for(t in 2:iters){
   # mu <- rnorm(1, lambda.p, sqrt(tau2.p))
   
   # #Then, use Metropolis RW to draw from the full conditional distribution...
-  print("mu:")
-  print(mu)
   mu.star <- rnorm(1, mu, s.mu)
-  print("mu.star:")
-  print(mu.star)
-  log.r <- sum(dbeta((pop1-1)/4, mu.star, sqrt(sigma2), log=T)) + 
-           dunif((mu.star-1)/4, lambda, sqrt(tau2), log=T) -
-           sum(dbeta((pop1-1)/4, mu, sqrt(sigma2), log=T)) -
-           dunif((mu-1)/4, lambda, sqrt(tau2), log=T)
-  print("log.r: ")
-  print(log.r)
+  mu.adj <- (mu-1)/4
+  mu.star.adj <-(mu.star-1)/4
   
-  logu <- log(runif(1))
-  print("logu: ")
-  print(logu)
-  if(logu < log.r){
-  	mu <- mu.star
-  	accept.mu <- accept.mu + 1
+  if (mu.star > 0){
+    beta.norm = (alpha - mu.adj*alpha)/mu.adj
+    beta.star = (alpha - mu.star.adj*alpha)/mu.star.adj
+    cat("\nmu.adj", mu.adj)
+    cat("\nmu.star.adj", mu.star.adj)
+    cat("\nbeta.norm", beta.norm)
+    cat("\nbeta.star", beta.star)
+    
+    log.r <- sum(dbeta((pop1-1)/4, alpha, beta.star, log=T)) + 
+             dunif(mu.star.adj, 0, 1, log=T) - #Proper prior calc
+             sum(dbeta((pop1-1)/4, alpha, beta.norm, log=T)) - 
+             dunif(mu.adj, 0, 1, log=T) #Proper prior calc
+    
+    logu <- log(runif(1))
+    if(logu < log.r){
+    	mu <- mu.star
+    	accept.mu <- accept.mu + 1
+    }
   }
   
+  ### The below is golden
   #save the value of mu
   mu.save[t] <- mu
   
@@ -162,11 +179,13 @@ for(t in 2:iters){
   sigma2.save[t] <- sigma2
   
 }
+
+##Added to check acceptance rates
+accept.mu/iters
 ```
 
 ```{r}
-##Added to check acceptance rates
-accept.mu/iters
+
 
 # Trace plots (decide if we need to throw out the first few values)
 par(mfrow=c(1,2))
