@@ -38,7 +38,7 @@ pop2 <- data.frame(
 data <- rbind(pop1, pop2)
 ```
 
-You can add options to executable code like this
+We expect our model to
 
 ```{r}
 # Fit Bayesian linear regression model
@@ -65,7 +65,15 @@ Given the output of the confidence intervals, we can not confidently say that th
 
 We are therefore skip trying to estimate that as a parameter and estimate only two things for each population: the true ratings for each and the standard deviation of those ratings.
 
-Because there isn't a known posterior distribution for our rating data, we will use a Monte Carlo approximation to analyze our data. Our prior will be an uninformative uniform distribution, and our likelihood doesn't follow any distributions that we know of, however a good approximation may be the beta distribution. While we acknowledge that the beta distribution doesn't allow for the endpoints, we will slightly change the data on the endpoints (5 star to 4.99, 1 star to 1.01). Since we aren't predicting how any individual would rate the store but the stores overall rating, we can confidently say that a given true store's rating is not equal to exactly 1 or 5 stars.
+Because there isn't a known posterior distribution for our rating data, we will use a Monte Carlo approximation to analyze our data. Our prior will be an uninformative uniform distribution, and our likelihood we assume a good approximation may be the beta distribution. As we acknowledge that the beta distribution doesn't allow for the endpoints, we will slightly change the data on the endpoints (5 star to 4.99, 1 star to 1.01). Since we aren't predicting how any individual would rate the store but the stores overall rating, we can confidently say that a given true store's rating is not equal to exactly 1 or 5 stars. This allows us to use the beta distribution for our likelihood.
+
+Our model for a single store would be:
+
+$$
+x_i = \text{Average rating for the ith store at a specific mall}
+\\
+f(Data | \mu, \sigma^2) \sim Beta(3,1.5)
+$$
 
 ```{r}
 library(invgamma)
