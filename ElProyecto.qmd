@@ -1,7 +1,7 @@
 ---
-title: "Project"
-author: "Derek & Bryce"
-format: html
+title: "251 Project"
+author: "Derek Walton & Bryce Martin"
+format: pdf
 editor: visual
 ---
 
