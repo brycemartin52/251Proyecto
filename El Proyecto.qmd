@@ -122,7 +122,7 @@ sigma2.save[1] <- sigma2
 
 ### Added for Metropolis RW
 accept.mu <- 0
-s.mu <- 4
+s.mu <- .25
 
 #Gibbs Sampling Algorithm
 for(t in 2:iters){
@@ -141,17 +141,17 @@ for(t in 2:iters){
   mu.adj <- (mu-1)/4
   mu.star.adj <-(mu.star-1)/4
   
-  if (mu.star > 0){
+  if (0 < mu.star.adj && mu.star.adj < 1){
     beta.norm = (alpha - mu.adj*alpha)/mu.adj
     beta.star = (alpha - mu.star.adj*alpha)/mu.star.adj
-    cat("\nmu.adj", mu.adj)
-    cat("\nmu.star.adj", mu.star.adj)
-    cat("\nbeta.norm", beta.norm)
-    cat("\nbeta.star", beta.star)
+    # cat("\nmu.adj", mu.adj)
+    # cat("\nmu.star.adj", mu.star.adj)
+    # cat("\nbeta.norm", beta.norm)
+    # cat("\nbeta.star", beta.star)
     
-    log.r <- sum(dbeta((pop1-1)/4, alpha, beta.star, log=T)) + 
+    log.r <- sum(dbeta((pop2-1)/4, alpha, beta.star, log=T)) + 
              dunif(mu.star.adj, 0, 1, log=T) - #Proper prior calc
-             sum(dbeta((pop1-1)/4, alpha, beta.norm, log=T)) - 
+             sum(dbeta((pop2-1)/4, alpha, beta.norm, log=T)) - 
              dunif(mu.adj, 0, 1, log=T) #Proper prior calc
     
     logu <- log(runif(1))
@@ -185,14 +185,12 @@ accept.mu/iters
 ```
 
 ```{r}
-
-
-# Trace plots (decide if we need to throw out the first few values)
 par(mfrow=c(1,2))
 plot(mu.save, type='l')
 plot(sigma2.save, type='l')
+```
 
-
+```{r}
 #throw out the first few values
 burn <- 100
 mu.use <- mu.save[-(1:burn)]
