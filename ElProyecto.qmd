@@ -1,0 +1,312 @@
+---
+title: "Project"
+author: "Derek & Bryce"
+format: html
+editor: visual
+---
+
+## Data Prep
+
+```{r}
+library(brms)
+```
+
+```{r}
+# Original vectors
+N <- c(9663, 117, 76, 116, 15, 71, 115, 1, 144, 473, 327, 94, 90, 6, 178, 61, 480, 432, 513, 243, 4492, 140, 112, 362, 632, 57, 371, 59, 2339, 40)
+logN <- log(N)
+
+Rating1 = c(4.6, 3.4, 3.8, 4.2, 3.5, 4.2, 3.2, 1.001, 3.9, 4.4, 4.8, 3.4, 4.6, 4.999, 4.4, 4.6, 4.3, 4.5, 2.6, 3.4, 4.8, 4.9, 3, 4.5, 4.4, 4.6, 3.8, 3.1, 4.5, 4.8)
+
+pop1 <- data.frame(
+  Rating = Rating1,
+  logN = logN,
+  Population = "Pop1"
+)
+
+
+N <- c(55, 78, 103, 59, 1596, 54, 12, 26, 1, 310, 8, 1448, 1, 40, 1, 13, 51, 28, 25, 2388, 135, 82, 15, 48, 66, 21, 29, 1112, 951, 91)
+logN <- log(N)
+Rating2 = c(4.5, 4.9, 4.3, 4.8, 4.2, 4.3, 4.999, 4.999, 4.999, 3.9, 4.999, 4.1, 4.999, 4.6, 1.001, 4.8, 4.5, 4.9, 4.8, 4, 4.5, 3.7, 4, 4.3, 3.8, 4.999, 4.999, 4.7, 3.9, 4.3)
+
+pop2 <- data.frame(
+  Rating = Rating2,
+  logN = logN,
+  Population = "Pop2"
+)
+
+data <- rbind(pop1, pop2)
+```
+
+You can add options to executable code like this
+
+```{r}
+# # Fit Bayesian linear regression model
+# fit <- brm(
+#   formula = Rating ~ logN + (1 + logN | Population),  # Random intercept and slope for Population
+#   data = data,
+#   family = gaussian(),  # Normal likelihood
+#   prior = c(
+#     prior(normal(4, 2), class = "Intercept"),
+#     prior(normal(0, 10), class = "b"),
+#     prior(cauchy(0, 20), class = "sd")  # Prior on group-level standard deviations
+#   ),
+#   iter = 4000,  # Number of iterations
+#   chains = 4,   # Number of MCMC chains
+#   seed = 123    # For reproducibility
+# )
+```
+
+```{r}
+# summary(fit)
+```
+
+Given the output of the confidence intervals, we can not confidently say that the log(n) has any significant correlative effect on the ratings.
+
+We are therefore skip trying to estimate that as a parameter and estimate only two things for each population: the true ratings for each and the standard deviation of those ratings.
+
+Because there isn't a known posterior distribution for our rating data, we use a Monte Carlo approximation to analyze our data. Our prior is an uninformative uniform distribution because we wanted to ensure a prior that would least effect our posterior distribution. For our likelihood, we assume a good approximation may be the beta distribution with alpha = 3 and beta = 1.5, as we imagine the data is more left skewed. We acknowledge that the beta distribution doesn't allow for the endpoints, so we slightly change the data on the endpoints (5 star to 4.99, 1 star to 1.01). Since we aren't predicting how any individual would rate the store but the stores overall rating, we can confidently say that a given true store's rating is not equal to exactly 1 or 5 stars. This allows us to use the beta distribution for our likelihood.
+
+Our model for a single store would be:
+
+$$
+x_i = \text{Average rating for the ith store at a specific mall} \\ \newline
+$$
+
+$$
+\text{Data} = x_1, x_2, ... x_n
+\newline
+\text{Prior: } X \sim Unif(0,1)\\
+\newline
+\text{Likelihood: }f(Data | \mu, \sigma^2) \sim Beta(3,1.5)
+$$
+
+```{r}
+library(invgamma)
+library(MASS)
+library(plot3D)
+
+# PRIOR PARAMETERS
+# Prior parameters for mu: 
+alpha <- 3
+beta <- 1.5
+
+# Prior parameters for sigma2: 
+gamma <- 2.01
+phi <- 1
+
+phi/(gamma-1) #prior expected value of variance: 
+
+# Plot the prior distributions to make sure they seem reasonable
+par(mfrow=c(1,2))
+
+curve(1+4*dbeta(x, alpha, beta), xlim=c(1, 5), ylab="prior density", main=expression(pi(mu)), xlab=expression(mu))
+
+curve(dinvgamma(x, gamma, phi), xlim=c(0, 5), ylab="prior density", main=expression(pi(sigma^2)), xlab=expression(sigma^2))
+```
+
+```{r}
+# COLLECT DATA
+pop1 <- Rating1
+pop2 <- Rating2
+
+n <- length(pop1)
+
+# POSTERIOR DISTRIBUTIONS: Must use Gibbs Sampling Algorithm to approximate
+#Starting values
+mu <- 1
+sigma2 <- 1
+
+# initializations for the Gibbs Sampling Algorithm
+iters <- 10000
+mu.1.save <- rep(0, iters)
+mu.1.save[1] <- mu
+sigma2.1.save <- rep(0, iters)
+sigma2.1.save[1] <- sigma2
+
+### Added for Metropolis RW
+accept.mu <- 0
+s.1.mu <- .32
+
+#Gibbs Sampling Algorithm For Pop1 (University Mall)
+for(t in 2:iters){
+  # Use Metropolis RW to draw from the full conditional distribution
+  mu.star <- rnorm(1, mu, s.1.mu)
+  mu.adj <- (mu-1)/4
+  mu.star.adj <-(mu.star-1)/4
+  
+  if (0 < mu.star.adj && mu.star.adj < 1){
+    beta.norm = (alpha - mu.adj*alpha)/mu.adj
+    beta.star = (alpha - mu.star.adj*alpha)/mu.star.adj
+    
+    log.r <- sum(dbeta((pop1-1)/4, alpha, beta.star, log=T)) + 
+             dunif(mu.star.adj, 0, 1, log=T) - 
+             sum(dbeta((pop1-1)/4, alpha, beta.norm, log=T)) - 
+             dunif(mu.adj, 0, 1, log=T)
+    
+    logu <- log(runif(1))
+    if(logu < log.r){
+    	mu <- mu.star
+    	accept.mu <- accept.mu + 1
+    }
+  }
+  
+  mu.1.save[t] <- mu
+  
+  # full conditional of sigma2 (update the value of the parameters)
+  gamma.p <- gamma + n/2
+  phi.p <- phi + sum((pop1 - mu)^2 )/2
+  
+  #sample and save new value of sigma2
+  sigma2 <- rinvgamma(1, gamma.p, phi.p)
+  sigma2.1.save[t] <- sigma2
+  
+}
+
+##Added to check acceptance rates
+accept.mu/iters
+
+
+# Reinit for Pop2
+mu <- 1
+sigma2 <- 1
+
+mu.2.save <- rep(0, iters)
+mu.2.save[1] <- mu
+sigma2.2.save <- rep(0, iters)
+sigma2.2.save[1] <- sigma2
+
+accept.mu <- 0
+s.2.mu <- .22
+
+#Gibbs Sampling Algorithm For Pop2 (Provo City Center Mall)
+for(t in 2:iters){
+  # Use Metropolis RW to draw from the full conditional distribution
+  mu.star <- rnorm(1, mu, s.2.mu)
+  mu.adj <- (mu-1)/4
+  mu.star.adj <-(mu.star-1)/4
+  
+  if (0 < mu.star.adj && mu.star.adj < 1){
+    beta.norm = (alpha - mu.adj*alpha)/mu.adj
+    beta.star = (alpha - mu.star.adj*alpha)/mu.star.adj
+    
+    log.r <- sum(dbeta((pop2-1)/4, alpha, beta.star, log=T)) + 
+             dunif(mu.star.adj, 0, 1, log=T) - 
+             sum(dbeta((pop2-1)/4, alpha, beta.norm, log=T)) - 
+             dunif(mu.adj, 0, 1, log=T)
+    
+    logu <- log(runif(1))
+    if(logu < log.r){
+    	mu <- mu.star
+    	accept.mu <- accept.mu + 1
+    }
+  }
+  
+  mu.2.save[t] <- mu
+  
+  # full conditional of sigma2 (update the value of the parameters)
+  gamma.p <- gamma + n/2
+  phi.p <- phi + sum((pop1 - mu)^2 )/2
+  
+  #sample and save new value of sigma2
+  sigma2 <- rinvgamma(1, gamma.p, phi.p)
+  sigma2.2.save[t] <- sigma2
+  
+}
+
+accept.mu/iters
+```
+
+```{r}
+par(mfrow=c(1,2))
+plot(mu.1.save, type='l')
+plot(mu.2.save, type='l')
+```
+
+```{r}
+#throw out the first few values
+burn <- 100
+mu.1.use <- mu.1.save[-(1:burn)]
+sigma2.1.use <- sigma2.1.save[-(1:burn)]
+mu.2.use <- mu.2.save[-(1:burn)]
+sigma2.2.use <- sigma2.2.save[-(1:burn)]
+
+par(mfrow=c(1,2))
+plot(mu.1.use, type='l')
+plot(mu.2.use, type='l')
+par(mfrow=c(1,2))
+plot(sigma2.1.use, type='l')
+plot(sigma2.2.use, type='l')
+```
+
+```{r}
+#SUMMARIZE THE POSTERIOR DISTRIBUTION(S)
+
+# joint posterior distribution of mu and sigma2 (for both populations)
+par(mfrow=c(1,1))
+joint.dens <- kde2d(mu.1.use, sigma2.1.use, n=100)
+persp(joint.dens, xlab="mu", ylab="sigma2", phi=30, theta=45)
+
+hist3D(joint.dens$x, joint.dens$y, joint.dens$z, xlab="mu", ylab="sigma2", phi=30, theta=45)
+
+
+par(mfrow=c(1,1))
+joint.dens <- kde2d(mu.2.use, sigma2.2.use, n=100)
+persp(joint.dens, xlab="mu", ylab="sigma2", phi=30, theta=45)
+
+hist3D(joint.dens$x, joint.dens$y, joint.dens$z, xlab="mu", ylab="sigma2", phi=30, theta=45)
+
+# posterior distribution of mu 
+par(mfrow=c(1,2))
+
+plot(density(mu.1.use), xlab=expression(mu), ylab="density", main=expression(pi(mu~"(University Mall) |"~data)))
+curve(dunif(x, 1, 5), lty=2, add=T)
+legend("topleft", c("Prior", "Posterior"), lty=c(2, 1))
+
+plot(density(mu.2.use), xlab=expression(mu), ylab="density", main=expression(pi(mu~"(Provo Mall) |"~data)))
+curve(dunif(x, 1, 5), lty=2, add=T)
+legend("topleft", c("Prior", "Posterior"), lty=c(2, 1))
+
+# Posterior distribution of the dif(mu.1 and mu.2)
+diffs <- mu.1.use - mu.2.use
+plot(density(diffs), xlab=expression(mu), ylab="density", main=expression(pi(mu~"(University Mall - Provo) |"~data)))
+legend("topleft", c("Distribution \nof the differences"), lty=c(1, 1))
+
+#95% credible interval
+quantile(mu.1.use, c(.025, .975))
+quantile(mu.2.use, c(.025, .975))
+# Given our data and prior knowledge, there is a 95% chance that
+# the true average rating for University mall is between 3.81 and 4.25 and
+# the true average rating for Provo mall is between 4.34 and 4.63
+
+#posterior mean of the average mall ratings
+mean(mu.1.use)
+mean(mu.2.use)
+
+#posterior mean of the average variance in mall ratings
+mean(sigma2.1.use)
+mean(sigma2.2.use)
+
+
+# posterior distribution of sigma2
+par(mfrow=c(1,1))
+plot(density(sigma2.1.use), xlab=expression(sigma^2), main=expression(pi(sigma^2~"(University Mall)|"~data)))
+curve(dinvgamma(x, gamma, phi), add=T, lty=2)
+legend("topright", c("Prior", "Posterior"), lty=c(1,.5))
+
+plot(density(sigma2.2.use), xlab=expression(sigma^2), main=expression(pi(sigma^2~"(Provo Mall)|"~data)))
+curve(dinvgamma(x, gamma, phi), add=T, lty=2)
+legend("topright", c("Prior", "Posterior"), lty=c(1,.5))
+
+#95% credible interval for sigma2
+quantile(sigma2.1.use, c(.025, .975))
+#95% credible interval for sigma
+quantile(sqrt(sigma2.1.use), c(.01, .99))
+
+#95% credible interval for sigma2
+quantile(sigma2.2.use, c(.025, .975))
+#95% credible interval for sigma
+quantile(sqrt(sigma2.2.use), c(.01, .99))
+
+#While the variation in the plots may look different, their 95% confidence intervals overlap quite a bit, and we cannot conclude there is a difference between the two variations
+```

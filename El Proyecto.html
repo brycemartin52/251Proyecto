@@ -206,8 +206,8 @@ Attaching package: 'brms'</code></pre>
 <pre><code>
 SAMPLING FOR MODEL 'anon_model' NOW (CHAIN 1).
 Chain 1: 
-Chain 1: Gradient evaluation took 0.000118 seconds
-Chain 1: 1000 transitions using 10 leapfrog steps per transition would take 1.18 seconds.
+Chain 1: Gradient evaluation took 8.3e-05 seconds
+Chain 1: 1000 transitions using 10 leapfrog steps per transition would take 0.83 seconds.
 Chain 1: Adjust your expectations accordingly!
 Chain 1: 
 Chain 1: 
@@ -224,15 +224,15 @@ Chain 1: Iteration: 3200 / 4000 [ 80%]  (Sampling)
 Chain 1: Iteration: 3600 / 4000 [ 90%]  (Sampling)
 Chain 1: Iteration: 4000 / 4000 [100%]  (Sampling)
 Chain 1: 
-Chain 1:  Elapsed Time: 3.431 seconds (Warm-up)
-Chain 1:                5.387 seconds (Sampling)
-Chain 1:                8.818 seconds (Total)
+Chain 1:  Elapsed Time: 3.862 seconds (Warm-up)
+Chain 1:                5.38 seconds (Sampling)
+Chain 1:                9.242 seconds (Total)
 Chain 1: 
 
 SAMPLING FOR MODEL 'anon_model' NOW (CHAIN 2).
 Chain 2: 
-Chain 2: Gradient evaluation took 2.2e-05 seconds
-Chain 2: 1000 transitions using 10 leapfrog steps per transition would take 0.22 seconds.
+Chain 2: Gradient evaluation took 3.4e-05 seconds
+Chain 2: 1000 transitions using 10 leapfrog steps per transition would take 0.34 seconds.
 Chain 2: Adjust your expectations accordingly!
 Chain 2: 
 Chain 2: 
@@ -249,15 +249,15 @@ Chain 2: Iteration: 3200 / 4000 [ 80%]  (Sampling)
 Chain 2: Iteration: 3600 / 4000 [ 90%]  (Sampling)
 Chain 2: Iteration: 4000 / 4000 [100%]  (Sampling)
 Chain 2: 
-Chain 2:  Elapsed Time: 3.655 seconds (Warm-up)
-Chain 2:                1.921 seconds (Sampling)
-Chain 2:                5.576 seconds (Total)
+Chain 2:  Elapsed Time: 3.942 seconds (Warm-up)
+Chain 2:                2.038 seconds (Sampling)
+Chain 2:                5.98 seconds (Total)
 Chain 2: 
 
 SAMPLING FOR MODEL 'anon_model' NOW (CHAIN 3).
 Chain 3: 
-Chain 3: Gradient evaluation took 2.6e-05 seconds
-Chain 3: 1000 transitions using 10 leapfrog steps per transition would take 0.26 seconds.
+Chain 3: Gradient evaluation took 2.1e-05 seconds
+Chain 3: 1000 transitions using 10 leapfrog steps per transition would take 0.21 seconds.
 Chain 3: Adjust your expectations accordingly!
 Chain 3: 
 Chain 3: 
@@ -274,15 +274,15 @@ Chain 3: Iteration: 3200 / 4000 [ 80%]  (Sampling)
 Chain 3: Iteration: 3600 / 4000 [ 90%]  (Sampling)
 Chain 3: Iteration: 4000 / 4000 [100%]  (Sampling)
 Chain 3: 
-Chain 3:  Elapsed Time: 3.946 seconds (Warm-up)
-Chain 3:                3.339 seconds (Sampling)
-Chain 3:                7.285 seconds (Total)
+Chain 3:  Elapsed Time: 4.022 seconds (Warm-up)
+Chain 3:                3.392 seconds (Sampling)
+Chain 3:                7.414 seconds (Total)
 Chain 3: 
 
 SAMPLING FOR MODEL 'anon_model' NOW (CHAIN 4).
 Chain 4: 
-Chain 4: Gradient evaluation took 2.3e-05 seconds
-Chain 4: 1000 transitions using 10 leapfrog steps per transition would take 0.23 seconds.
+Chain 4: Gradient evaluation took 2.1e-05 seconds
+Chain 4: 1000 transitions using 10 leapfrog steps per transition would take 0.21 seconds.
 Chain 4: Adjust your expectations accordingly!
 Chain 4: 
 Chain 4: 
@@ -299,9 +299,9 @@ Chain 4: Iteration: 3200 / 4000 [ 80%]  (Sampling)
 Chain 4: Iteration: 3600 / 4000 [ 90%]  (Sampling)
 Chain 4: Iteration: 4000 / 4000 [100%]  (Sampling)
 Chain 4: 
-Chain 4:  Elapsed Time: 4.188 seconds (Warm-up)
-Chain 4:                5.83 seconds (Sampling)
-Chain 4:                10.018 seconds (Total)
+Chain 4:  Elapsed Time: 4.372 seconds (Warm-up)
+Chain 4:                5.541 seconds (Sampling)
+Chain 4:                9.913 seconds (Total)
 Chain 4: </code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
@@ -356,12 +356,13 @@ scale reduction factor on split chains (at convergence, Rhat = 1).</code></pre>
 </div>
 <p>Given the output of the confidence intervals, we can not confidently say that the log(n) has any significant correlative effect on the ratings.</p>
 <p>We are therefore skip trying to estimate that as a parameter and estimate only two things for each population: the true ratings for each and the standard deviation of those ratings.</p>
-<p>Because there isn’t a known posterior distribution for our rating data, we use a Monte Carlo approximation to analyze our data. Our prior is an uninformative uniform distribution because we wanted to ensure an uninformed prior that would least effect our posterior distribution. For our likelihood, we assume a good approximation may be the beta distribution with alpha = 3 and beta = 1.5, as we imagine the data is more left skewed. We acknowledge that the beta distribution doesn’t allow for the endpoints, so we slightly change the data on the endpoints (5 star to 4.99, 1 star to 1.01). Since we aren’t predicting how any individual would rate the store but the stores overall rating, we can confidently say that a given true store’s rating is not equal to exactly 1 or 5 stars. This allows us to use the beta distribution for our likelihood.</p>
+<p>Because there isn’t a known posterior distribution for our rating data, we use a Monte Carlo approximation to analyze our data. Our prior is an uninformative uniform distribution because we wanted to ensure a prior that would least effect our posterior distribution. For our likelihood, we assume a good approximation may be the beta distribution with alpha = 3 and beta = 1.5, as we imagine the data is more left skewed. We acknowledge that the beta distribution doesn’t allow for the endpoints, so we slightly change the data on the endpoints (5 star to 4.99, 1 star to 1.01). Since we aren’t predicting how any individual would rate the store but the stores overall rating, we can confidently say that a given true store’s rating is not equal to exactly 1 or 5 stars. This allows us to use the beta distribution for our likelihood.</p>
 <p>Our model for a single store would be:</p>
 <p><span class="math display">\[
-x_i = \text{Average rating for the ith store at a specific mall}
-\\
-f(Data | \mu, \sigma^2) \sim Beta(3,1.5)
+x_i = \text{Average rating for the ith store at a specific mall} \\ \newline
+\text{Prior: } X \sim Unif(0,1)\\
+\newline
+\text{Likelihood: }f(Data | \mu, \sigma^2) \sim Beta(3,1.5)
 \]</span></p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(invgamma)</span>
@@ -416,7 +417,7 @@ f(Data | \mu, \sigma^2) \sim Beta(3,1.5)
 <span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb20-19"><a href="#cb20-19" aria-hidden="true" tabindex="-1"></a><span class="do">### Added for Metropolis RW</span></span>
 <span id="cb20-20"><a href="#cb20-20" aria-hidden="true" tabindex="-1"></a>accept.mu <span class="ot">&lt;-</span> <span class="dv">0</span></span>
-<span id="cb20-21"><a href="#cb20-21" aria-hidden="true" tabindex="-1"></a>s.<span class="fl">1.</span>mu <span class="ot">&lt;-</span> .<span class="dv">27</span></span>
+<span id="cb20-21"><a href="#cb20-21" aria-hidden="true" tabindex="-1"></a>s.<span class="fl">1.</span>mu <span class="ot">&lt;-</span> .<span class="dv">32</span></span>
 <span id="cb20-22"><a href="#cb20-22" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb20-23"><a href="#cb20-23" aria-hidden="true" tabindex="-1"></a><span class="co">#Gibbs Sampling Algorithm For Pop1 (University Mall)</span></span>
 <span id="cb20-24"><a href="#cb20-24" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span>(t <span class="cf">in</span> <span class="dv">2</span><span class="sc">:</span>iters){</span>
@@ -456,7 +457,7 @@ f(Data | \mu, \sigma^2) \sim Beta(3,1.5)
 <span id="cb20-58"><a href="#cb20-58" aria-hidden="true" tabindex="-1"></a><span class="do">##Added to check acceptance rates</span></span>
 <span id="cb20-59"><a href="#cb20-59" aria-hidden="true" tabindex="-1"></a>accept.mu<span class="sc">/</span>iters</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 0.447</code></pre>
+<pre><code>[1] 0.3959</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Reinit for Pop2</span></span>
 <span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>mu <span class="ot">&lt;-</span> <span class="dv">1</span></span>
@@ -507,7 +508,7 @@ f(Data | \mu, \sigma^2) \sim Beta(3,1.5)
 <span id="cb22-47"><a href="#cb22-47" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb22-48"><a href="#cb22-48" aria-hidden="true" tabindex="-1"></a>accept.mu<span class="sc">/</span>iters</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 0.3856</code></pre>
+<pre><code>[1] 0.3814</code></pre>
 </div>
 </div>
 <div class="cell">
@@ -594,11 +595,11 @@ f(Data | \mu, \sigma^2) \sim Beta(3,1.5)
 <div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="co"># posterior distribution of mu </span></span>
 <span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">2</span>))</span>
 <span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">density</span>(mu.<span class="fl">1.</span>use), <span class="at">xlab=</span><span class="fu">expression</span>(mu), <span class="at">ylab=</span><span class="st">"density"</span>, <span class="at">main=</span><span class="fu">expression</span>(<span class="fu">pi</span>(mu<span class="sc">~</span><span class="st">"(University Mall)|"</span><span class="sc">~</span>data)))</span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">density</span>(mu.<span class="fl">1.</span>use), <span class="at">xlab=</span><span class="fu">expression</span>(mu), <span class="at">ylab=</span><span class="st">"density"</span>, <span class="at">main=</span><span class="fu">expression</span>(<span class="fu">pi</span>(mu<span class="sc">~</span><span class="st">"(University Mall) |"</span><span class="sc">~</span>data)))</span>
 <span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a><span class="fu">curve</span>(<span class="fu">dunif</span>(x, <span class="dv">1</span>, <span class="dv">5</span>), <span class="at">lty=</span><span class="dv">2</span>, <span class="at">add=</span>T)</span>
 <span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">"topleft"</span>, <span class="fu">c</span>(<span class="st">"Prior"</span>, <span class="st">"Posterior"</span>), <span class="at">lty=</span><span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">1</span>))</span>
 <span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">density</span>(mu.<span class="fl">2.</span>use), <span class="at">xlab=</span><span class="fu">expression</span>(mu), <span class="at">ylab=</span><span class="st">"density"</span>, <span class="at">main=</span><span class="fu">expression</span>(<span class="fu">pi</span>(mu<span class="sc">~</span><span class="st">"(Provo Mall)|"</span><span class="sc">~</span>data)))</span>
+<span id="cb31-8"><a href="#cb31-8" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">density</span>(mu.<span class="fl">2.</span>use), <span class="at">xlab=</span><span class="fu">expression</span>(mu), <span class="at">ylab=</span><span class="st">"density"</span>, <span class="at">main=</span><span class="fu">expression</span>(<span class="fu">pi</span>(mu<span class="sc">~</span><span class="st">"(Provo Mall) |"</span><span class="sc">~</span>data)))</span>
 <span id="cb31-9"><a href="#cb31-9" aria-hidden="true" tabindex="-1"></a><span class="fu">curve</span>(<span class="fu">dunif</span>(x, <span class="dv">1</span>, <span class="dv">5</span>), <span class="at">lty=</span><span class="dv">2</span>, <span class="at">add=</span>T)</span>
 <span id="cb31-10"><a href="#cb31-10" aria-hidden="true" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">"topleft"</span>, <span class="fu">c</span>(<span class="st">"Prior"</span>, <span class="st">"Posterior"</span>), <span class="at">lty=</span><span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">1</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
@@ -608,44 +609,46 @@ f(Data | \mu, \sigma^2) \sim Beta(3,1.5)
 </figure>
 </div>
 </div>
-<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co">#95% credible interval</span></span>
-<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a><span class="fu">quantile</span>(mu.<span class="fl">1.</span>use, <span class="fu">c</span>(.<span class="dv">025</span>, .<span class="dv">975</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Posterior distribution of the dif(mu.1 and mu.2)</span></span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>diffs <span class="ot">&lt;-</span> mu.<span class="fl">1.</span>use <span class="sc">-</span> mu.<span class="fl">2.</span>use</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">density</span>(diffs), <span class="at">xlab=</span><span class="fu">expression</span>(mu), <span class="at">ylab=</span><span class="st">"density"</span>, <span class="at">main=</span><span class="fu">expression</span>(<span class="fu">pi</span>(mu<span class="sc">~</span><span class="st">"(University Mall - Provo) |"</span><span class="sc">~</span>data)))</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">"topleft"</span>, <span class="fu">c</span>(<span class="st">"Distribution </span><span class="sc">\n</span><span class="st">of the differences"</span>), <span class="at">lty=</span><span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">1</span>))</span>
+<span id="cb32-5"><a href="#cb32-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb32-6"><a href="#cb32-6" aria-hidden="true" tabindex="-1"></a><span class="co">#95% credible interval</span></span>
+<span id="cb32-7"><a href="#cb32-7" aria-hidden="true" tabindex="-1"></a><span class="fu">quantile</span>(mu.<span class="fl">1.</span>use, <span class="fu">c</span>(.<span class="dv">025</span>, .<span class="dv">975</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>    2.5%    97.5% 
-3.820635 4.252144 </code></pre>
+3.820065 4.258181 </code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">quantile</span>(mu.<span class="fl">2.</span>use, <span class="fu">c</span>(.<span class="dv">025</span>, .<span class="dv">975</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>    2.5%    97.5% 
-4.334263 4.640014 </code></pre>
+4.340388 4.633939 </code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Given our data and prior knowledge, there is a 98% </span></span>
-<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a><span class="co">#chance that the true average refraction index on this </span></span>
-<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a><span class="co"># portion of the window is between 1.519 and 1.521.</span></span>
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Given our data and prior knowledge, there is a 95% chance that</span></span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a><span class="co"># the true average rating for University mall is between 3.81 and 4.25 and</span></span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a><span class="co"># the true average rating for Provo mall is between 4.34 and 4.63</span></span>
 <span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a><span class="co">#posterior mean of the average mall ratings</span></span>
 <span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(mu.<span class="fl">1.</span>use)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 4.03718</code></pre>
+<pre><code>[1] 4.036436</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(mu.<span class="fl">2.</span>use)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 4.491083</code></pre>
+<pre><code>[1] 4.494034</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="co">#posterior mean of the average variance in mall ratings</span></span>
 <span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(sigma2.<span class="fl">1.</span>use)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 0.743511</code></pre>
+<pre><code>[1] 0.7460556</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mean</span>(sigma2.<span class="fl">2.</span>use)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 0.9577681</code></pre>
+<pre><code>[1] 0.9570961</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="co"># posterior distribution of sigma2</span></span>
-<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">1</span>))</span>
-<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">density</span>(sigma2.<span class="fl">1.</span>use), <span class="at">xlab=</span><span class="fu">expression</span>(sigma<span class="sc">^</span><span class="dv">2</span>), <span class="at">main=</span><span class="fu">expression</span>(<span class="fu">pi</span>(sigma<span class="sc">^</span><span class="dv">2</span><span class="sc">~</span><span class="st">"(University Mall)|"</span><span class="sc">~</span>data)))</span>
-<span id="cb44-4"><a href="#cb44-4" aria-hidden="true" tabindex="-1"></a><span class="fu">curve</span>(<span class="fu">dinvgamma</span>(x, gamma, phi), <span class="at">add=</span>T, <span class="at">lty=</span><span class="dv">2</span>)</span>
-<span id="cb44-5"><a href="#cb44-5" aria-hidden="true" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">"topright"</span>, <span class="fu">c</span>(<span class="st">"Prior"</span>, <span class="st">"Posterior"</span>), <span class="at">lty=</span><span class="fu">c</span>(<span class="dv">1</span>,.<span class="dv">5</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mfrow=</span><span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">1</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -653,7 +656,7 @@ f(Data | \mu, \sigma^2) \sim Beta(3,1.5)
 </figure>
 </div>
 </div>
-<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">density</span>(sigma2.<span class="fl">2.</span>use), <span class="at">xlab=</span><span class="fu">expression</span>(sigma<span class="sc">^</span><span class="dv">2</span>), <span class="at">main=</span><span class="fu">expression</span>(<span class="fu">pi</span>(sigma<span class="sc">^</span><span class="dv">2</span><span class="sc">~</span><span class="st">"(Provo Mall)|"</span><span class="sc">~</span>data)))</span>
+<div class="sourceCode cell-code" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">density</span>(sigma2.<span class="fl">1.</span>use), <span class="at">xlab=</span><span class="fu">expression</span>(sigma<span class="sc">^</span><span class="dv">2</span>), <span class="at">main=</span><span class="fu">expression</span>(<span class="fu">pi</span>(sigma<span class="sc">^</span><span class="dv">2</span><span class="sc">~</span><span class="st">"(University Mall)|"</span><span class="sc">~</span>data)))</span>
 <span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a><span class="fu">curve</span>(<span class="fu">dinvgamma</span>(x, gamma, phi), <span class="at">add=</span>T, <span class="at">lty=</span><span class="dv">2</span>)</span>
 <span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">"topright"</span>, <span class="fu">c</span>(<span class="st">"Prior"</span>, <span class="st">"Posterior"</span>), <span class="at">lty=</span><span class="fu">c</span>(<span class="dv">1</span>,.<span class="dv">5</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
@@ -663,32 +666,41 @@ f(Data | \mu, \sigma^2) \sim Beta(3,1.5)
 </figure>
 </div>
 </div>
-<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="co">#95% credible interval for sigma2</span></span>
-<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a><span class="fu">quantile</span>(sigma2.<span class="fl">1.</span>use, <span class="fu">c</span>(.<span class="dv">025</span>, .<span class="dv">975</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">density</span>(sigma2.<span class="fl">2.</span>use), <span class="at">xlab=</span><span class="fu">expression</span>(sigma<span class="sc">^</span><span class="dv">2</span>), <span class="at">main=</span><span class="fu">expression</span>(<span class="fu">pi</span>(sigma<span class="sc">^</span><span class="dv">2</span><span class="sc">~</span><span class="st">"(Provo Mall)|"</span><span class="sc">~</span>data)))</span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a><span class="fu">curve</span>(<span class="fu">dinvgamma</span>(x, gamma, phi), <span class="at">add=</span>T, <span class="at">lty=</span><span class="dv">2</span>)</span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a><span class="fu">legend</span>(<span class="st">"topright"</span>, <span class="fu">c</span>(<span class="st">"Prior"</span>, <span class="st">"Posterior"</span>), <span class="at">lty=</span><span class="fu">c</span>(<span class="dv">1</span>,.<span class="dv">5</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="El-Proyecto_files/figure-html/unnamed-chunk-9-8.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="co">#95% credible interval for sigma2</span></span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a><span class="fu">quantile</span>(sigma2.<span class="fl">1.</span>use, <span class="fu">c</span>(.<span class="dv">025</span>, .<span class="dv">975</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>     2.5%     97.5% 
-0.4551551 1.2075061 </code></pre>
+0.4570098 1.2164232 </code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a><span class="co">#95% credible interval for sigma</span></span>
-<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a><span class="fu">quantile</span>(<span class="fu">sqrt</span>(sigma2.<span class="fl">1.</span>use), <span class="fu">c</span>(.<span class="dv">01</span>, .<span class="dv">99</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="co">#95% credible interval for sigma</span></span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a><span class="fu">quantile</span>(<span class="fu">sqrt</span>(sigma2.<span class="fl">1.</span>use), <span class="fu">c</span>(.<span class="dv">01</span>, .<span class="dv">99</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>       1%       99% 
-0.6489089 1.1517950 </code></pre>
+0.6514645 1.1662366 </code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb50"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a><span class="co">#95% credible interval for sigma2</span></span>
-<span id="cb50-2"><a href="#cb50-2" aria-hidden="true" tabindex="-1"></a><span class="fu">quantile</span>(sigma2.<span class="fl">2.</span>use, <span class="fu">c</span>(.<span class="dv">025</span>, .<span class="dv">975</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="co">#95% credible interval for sigma2</span></span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a><span class="fu">quantile</span>(sigma2.<span class="fl">2.</span>use, <span class="fu">c</span>(.<span class="dv">025</span>, .<span class="dv">975</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>     2.5%     97.5% 
-0.5744074 1.5768179 </code></pre>
+0.5815014 1.5564407 </code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="co">#95% credible interval for sigma</span></span>
-<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a><span class="fu">quantile</span>(<span class="fu">sqrt</span>(sigma2.<span class="fl">2.</span>use), <span class="fu">c</span>(.<span class="dv">01</span>, .<span class="dv">99</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a><span class="co">#95% credible interval for sigma</span></span>
+<span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a><span class="fu">quantile</span>(<span class="fu">sqrt</span>(sigma2.<span class="fl">2.</span>use), <span class="fu">c</span>(.<span class="dv">01</span>, .<span class="dv">99</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>       1%       99% 
-0.7278523 1.3248813 </code></pre>
+0.7330488 1.3173652 </code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="co">#There is a 95% chance, given our data and prior knowledge, </span></span>
-<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a><span class="co">#that the standard deviation ...</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a><span class="co">#While the variation in the plots may look different, their 95% confidence intervals overlap quite a bit, and we cannot conclude there is a difference between the two variations</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 
