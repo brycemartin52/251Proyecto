@@ -16,7 +16,7 @@ library(brms)
 N <- c(9663, 117, 76, 116, 15, 71, 115, 1, 144, 473, 327, 94, 90, 6, 178, 61, 480, 432, 513, 243, 4492, 140, 112, 362, 632, 57, 371, 59, 2339, 40)
 logN <- log(N)
 
-Rating1 = c(4.6, 3.4, 3.8, 4.2, 3.5, 4.2, 3.2, 1.01, 3.9, 4.4, 4.8, 3.4, 4.6, 4.99, 4.4, 4.6, 4.3, 4.5, 2.6, 3.4, 4.8, 4.9, 3, 4.5, 4.4, 4.6, 3.8, 3.1, 4.5, 4.8)
+Rating1 = c(4.6, 3.4, 3.8, 4.2, 3.5, 4.2, 3.2, 1.001, 3.9, 4.4, 4.8, 3.4, 4.6, 4.999, 4.4, 4.6, 4.3, 4.5, 2.6, 3.4, 4.8, 4.9, 3, 4.5, 4.4, 4.6, 3.8, 3.1, 4.5, 4.8)
 
 pop1 <- data.frame(
   Rating = Rating1,
@@ -27,7 +27,7 @@ pop1 <- data.frame(
 
 N <- c(55, 78, 103, 59, 1596, 54, 12, 26, 1, 310, 8, 1448, 1, 40, 1, 13, 51, 28, 25, 2388, 135, 82, 15, 48, 66, 21, 29, 1112, 951, 91)
 logN <- log(N)
-Rating2 = c(4.5, 4.9, 4.3, 4.8, 4.2, 4.3, 4.99, 4.99, 4.99, 3.9, 4.99, 4.1, 4.99, 4.6, 1.01, 4.8, 4.5, 4.9, 4.8, 4, 4.5, 3.7, 4, 4.3, 3.8, 4.99, 4.99, 4.7, 3.9, 4.3)
+Rating2 = c(4.5, 4.9, 4.3, 4.8, 4.2, 4.3, 4.999, 4.999, 4.999, 3.9, 4.999, 4.1, 4.999, 4.6, 1.001, 4.8, 4.5, 4.9, 4.8, 4, 4.5, 3.7, 4, 4.3, 3.8, 4.999, 4.999, 4.7, 3.9, 4.3)
 
 pop2 <- data.frame(
   Rating = Rating2,
@@ -69,6 +69,8 @@ Because there isn't a known posterior distribution for our rating data, we will 
 
 ```{r}
 library(invgamma)
+library(MASS)
+library(plot3D)
 
 # PRIOR PARAMETERS
 # Prior parameters for mu: 
@@ -77,16 +79,16 @@ beta <- 1.5
 
 # Prior parameters for sigma2: 
 gamma <- 2.01
-phi <- 0.0001
-#prior expected value of variance: 
-phi/(gamma-1)
+phi <- .5
+
+phi/(gamma-1) #prior expected value of variance: 
 
 # Plot the prior distributions to make sure they seem reasonable
 par(mfrow=c(1,2))
 
 curve(1+4*dbeta(x, alpha, beta), xlim=c(1, 5), ylab="prior density", main=expression(pi(mu)), xlab=expression(mu))
 
-curve(dinvgamma(x, gamma, phi), xlim=c(0, .0005), ylab="prior density", main=expression(pi(sigma^2)), xlab=expression(sigma^2))
+curve(dinvgamma(x, gamma, phi), xlim=c(0, 5), ylab="prior density", main=expression(pi(sigma^2)), xlab=expression(sigma^2))
 ```
 
 ```{r}
@@ -97,62 +99,36 @@ pop2 <- Rating2
 n <- length(pop1)
 
 # POSTERIOR DISTRIBUTIONS: Must use Gibbs Sampling Algorithm to approximate
-
-#Starting values (This example has extreme starting values just for illustrative purposes)
-mu <- 4 #-200  #more reasonable starting value: 1.5
-sigma2 <- 1 #10000 #more reasonable starting value: 0.001
-
-library(MASS)
-
-# Set the shape and rate parameters for the gamma distribution
-alpha = 3
-beta = 1.5
-
-# Generate alpha and beta parameters using the gamma distribution
-
-
-# Print the generated alpha and beta parameters
+#Starting values
+mu <- 1
+sigma2 <- 1
 
 # initializations for the Gibbs Sampling Algorithm
 iters <- 10000
-mu.save <- rep(0, iters)
-mu.save[1] <- mu
-sigma2.save <- rep(0, iters)
-sigma2.save[1] <- sigma2
+mu.1.save <- rep(0, iters)
+mu.1.save[1] <- mu
+sigma2.1.save <- rep(0, iters)
+sigma2.1.save[1] <- sigma2
 
 ### Added for Metropolis RW
 accept.mu <- 0
-s.mu <- .25
+s.1.mu <- .27
 
-#Gibbs Sampling Algorithm
+#Gibbs Sampling Algorithm For Pop1 (University Mall)
 for(t in 2:iters){
-  
-  # #What if the full conditional distribution was unknown??
-  # 
-  # # Full conditional of mu (update the value of the parameters)
-  # lambda.p <- (tau2*sum(refract) + sigma2*lambda)/(tau2*n + sigma2)
-  # tau2.p <- sigma2*tau2/(tau2*n + sigma2)
-  
-  # #sample a new value of mu
-  # mu <- rnorm(1, lambda.p, sqrt(tau2.p))
-  
-  # #Then, use Metropolis RW to draw from the full conditional distribution...
-  mu.star <- rnorm(1, mu, s.mu)
+  # Use Metropolis RW to draw from the full conditional distribution
+  mu.star <- rnorm(1, mu, s.1.mu)
   mu.adj <- (mu-1)/4
   mu.star.adj <-(mu.star-1)/4
   
   if (0 < mu.star.adj && mu.star.adj < 1){
     beta.norm = (alpha - mu.adj*alpha)/mu.adj
     beta.star = (alpha - mu.star.adj*alpha)/mu.star.adj
-    # cat("\nmu.adj", mu.adj)
-    # cat("\nmu.star.adj", mu.star.adj)
-    # cat("\nbeta.norm", beta.norm)
-    # cat("\nbeta.star", beta.star)
     
-    log.r <- sum(dbeta((pop2-1)/4, alpha, beta.star, log=T)) + 
-             dunif(mu.star.adj, 0, 1, log=T) - #Proper prior calc
-             sum(dbeta((pop2-1)/4, alpha, beta.norm, log=T)) - 
-             dunif(mu.adj, 0, 1, log=T) #Proper prior calc
+    log.r <- sum(dbeta((pop1-1)/4, alpha, beta.star, log=T)) + 
+             dunif(mu.star.adj, 0, 1, log=T) - 
+             sum(dbeta((pop1-1)/4, alpha, beta.norm, log=T)) - 
+             dunif(mu.adj, 0, 1, log=T)
     
     logu <- log(runif(1))
     if(logu < log.r){
@@ -161,52 +137,102 @@ for(t in 2:iters){
     }
   }
   
-  ### The below is golden
-  #save the value of mu
-  mu.save[t] <- mu
+  mu.1.save[t] <- mu
   
   # full conditional of sigma2 (update the value of the parameters)
   gamma.p <- gamma + n/2
   phi.p <- phi + sum((pop1 - mu)^2 )/2
   
-  #sample new value of sigma2
+  #sample and save new value of sigma2
   sigma2 <- rinvgamma(1, gamma.p, phi.p)
-  #alternatively, instead of using the invgamma library, 
-  #you could sample from the gamma distribution and invert the draw: 
-  #sigma2 <- 1/rgamma(1, gamma.p, phi.p)
-  
-  #save the value of sigma2
-  sigma2.save[t] <- sigma2
+  sigma2.1.save[t] <- sigma2
   
 }
 
 ##Added to check acceptance rates
 accept.mu/iters
+
+
+# Reinit for Pop2
+mu <- 1
+sigma2 <- 1
+
+mu.2.save <- rep(0, iters)
+mu.2.save[1] <- mu
+sigma2.2.save <- rep(0, iters)
+sigma2.2.save[1] <- sigma2
+
+accept.mu <- 0
+s.2.mu <- .22
+
+#Gibbs Sampling Algorithm For Pop2 (Provo City Center Mall)
+for(t in 2:iters){
+  # Use Metropolis RW to draw from the full conditional distribution
+  mu.star <- rnorm(1, mu, s.2.mu)
+  mu.adj <- (mu-1)/4
+  mu.star.adj <-(mu.star-1)/4
+  
+  if (0 < mu.star.adj && mu.star.adj < 1){
+    beta.norm = (alpha - mu.adj*alpha)/mu.adj
+    beta.star = (alpha - mu.star.adj*alpha)/mu.star.adj
+    
+    log.r <- sum(dbeta((pop2-1)/4, alpha, beta.star, log=T)) + 
+             dunif(mu.star.adj, 0, 1, log=T) - 
+             sum(dbeta((pop2-1)/4, alpha, beta.norm, log=T)) - 
+             dunif(mu.adj, 0, 1, log=T)
+    
+    logu <- log(runif(1))
+    if(logu < log.r){
+    	mu <- mu.star
+    	accept.mu <- accept.mu + 1
+    }
+  }
+  
+  mu.2.save[t] <- mu
+  
+  # full conditional of sigma2 (update the value of the parameters)
+  gamma.p <- gamma + n/2
+  phi.p <- phi + sum((pop1 - mu)^2 )/2
+  
+  #sample and save new value of sigma2
+  sigma2 <- rinvgamma(1, gamma.p, phi.p)
+  sigma2.2.save[t] <- sigma2
+  
+}
+
+accept.mu/iters
 ```
 
 ```{r}
 par(mfrow=c(1,2))
-plot(mu.save, type='l')
-plot(sigma2.save, type='l')
+plot(mu.1.save, type='l')
+plot(mu.2.save, type='l')
 ```
 
 ```{r}
 #throw out the first few values
 burn <- 100
-mu.use <- mu.save[-(1:burn)]
-sigma2.use <- sigma2.save[-(1:burn)]
-plot(mu.use, type='l')
-plot(sigma2.use, type='l')
+mu.1.use <- mu.1.save[-(1:burn)]
+sigma2.1.use <- sigma2.1.save[-(1:burn)]
+mu.2.use <- mu.2.save[-(1:burn)]
+sigma2.2.use <- sigma2.2.save[-(1:burn)]
 
+par(mfrow=c(1,2))
+plot(mu.1.use, type='l')
+plot(mu.2.use, type='l')
+par(mfrow=c(1,2))
+plot(sigma2.1.use, type='l')
+plot(sigma2.2.use, type='l')
+```
+
+```{r}
 #SUMMARIZE THE POSTERIOR DISTRIBUTION(S)
 
 # joint posterior distribution of mu and sigma2
-library(MASS)
 par(mfrow=c(1,1))
 joint.dens <- kde2d(mu.use, sigma2.use, n=100)
 persp(joint.dens, xlab="mu", ylab="sigma2", phi=30, theta=45)
 
-library(plot3D)
 hist3D(joint.dens$x, joint.dens$y, joint.dens$z, xlab="mu", ylab="sigma2", phi=30, theta=45)
 
 # posterior distribution of mu 
@@ -217,8 +243,9 @@ curve(dnorm(x, lambda, sqrt(tau2)), lty=2, add=T)
 #add legend
 legend("topleft", c("Prior", "Posterior"), lty=c(2, 1))
 
-#98% credible interval
-quantile(mu.use, c(.01, .99))
+#95% credible interval
+quantile(mu.1.use, c(.025, .975))
+quantile(mu.2.use, c(.025, .975))
 #Given our data and prior knowledge, there is a 98% 
 #chance that the true average refraction index on this 
 # portion of the window is between 1.519 and 1.521.
@@ -257,6 +284,4 @@ mean(x.star>1.52004)
 #(Note: more data would help us minimize that uncertainty for the range of refraction indices.)
 
 #Question that might be interesting to explore: How can I make it so that this probability is very low? Play around with the prior distributions to see what happens.
-
-
 ```
