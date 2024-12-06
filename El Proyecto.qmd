@@ -79,7 +79,7 @@ beta <- 1.5
 
 # Prior parameters for sigma2: 
 gamma <- 2.01
-phi <- .5
+phi <- 1
 
 phi/(gamma-1) #prior expected value of variance: 
 
@@ -228,19 +228,29 @@ plot(sigma2.2.use, type='l')
 ```{r}
 #SUMMARIZE THE POSTERIOR DISTRIBUTION(S)
 
-# joint posterior distribution of mu and sigma2
+# joint posterior distribution of mu and sigma2 (for both populations)
 par(mfrow=c(1,1))
-joint.dens <- kde2d(mu.use, sigma2.use, n=100)
+joint.dens <- kde2d(mu.1.use, sigma2.1.use, n=100)
+persp(joint.dens, xlab="mu", ylab="sigma2", phi=30, theta=45)
+
+hist3D(joint.dens$x, joint.dens$y, joint.dens$z, xlab="mu", ylab="sigma2", phi=30, theta=45)
+
+
+par(mfrow=c(1,1))
+joint.dens <- kde2d(mu.2.use, sigma2.2.use, n=100)
 persp(joint.dens, xlab="mu", ylab="sigma2", phi=30, theta=45)
 
 hist3D(joint.dens$x, joint.dens$y, joint.dens$z, xlab="mu", ylab="sigma2", phi=30, theta=45)
 
 # posterior distribution of mu 
-#plot 
-plot(density(mu.use), xlab=expression(mu), ylab="density", main=expression(pi(mu~"|"~data)))
-#add prior
+par(mfrow=c(1,2))
+
+plot(density(mu.1.use), xlab=expression(mu), ylab="density", main=expression(pi(mu~"(University Mall)|"~data)))
 curve(dnorm(x, lambda, sqrt(tau2)), lty=2, add=T)
-#add legend
+legend("topleft", c("Prior", "Posterior"), lty=c(2, 1))
+
+plot(density(mu.2.use), xlab=expression(mu), ylab="density", main=expression(pi(mu~"(Provo Mall)|"~data)))
+curve(dnorm(x, lambda, sqrt(tau2)), lty=2, add=T)
 legend("topleft", c("Prior", "Posterior"), lty=c(2, 1))
 
 #95% credible interval
@@ -250,38 +260,52 @@ quantile(mu.2.use, c(.025, .975))
 #chance that the true average refraction index on this 
 # portion of the window is between 1.519 and 1.521.
 
-#posterior mean of the average refraction index
-mean(mu.use)
+#posterior mean of the average mall ratings
+mean(mu.1.use)
+mean(mu.2.use)
+
+#posterior mean of the average variance in mall ratings
+mean(sigma2.1.use)
+mean(sigma2.2.use)
+
 
 # posterior distribution of sigma2
 par(mfrow=c(1,1))
-plot(density(sigma2.use), xlab=expression(sigma^2), main=expression(pi(sigma^2~"|"~data)))
-#add prior
+plot(density(sigma2.1.use), xlab=expression(sigma^2), main=expression(pi(sigma^2~"(University Mall)|"~data)))
 curve(dinvgamma(x, gamma, phi), add=T, lty=2)
-#add legend
-legend("topright", c("Prior", "Posterior"), lty=c(2,1))
+legend("topright", c("Prior", "Posterior"), lty=c(1,.5))
 
-#98% credible interval for sigma2
-quantile(sigma2.use, c(.01, .99))
-#98% credible interval for sigma
-quantile(sqrt(sigma2.use), c(.01, .99))
-#There is a 98% chance, given our data and prior knowledge, 
+plot(density(sigma2.2.use), xlab=expression(sigma^2), main=expression(pi(sigma^2~"(Provo Mall)|"~data)))
+curve(dinvgamma(x, gamma, phi), add=T, lty=2)
+legend("topright", c("Prior", "Posterior"), lty=c(1,.5))
+
+#95% credible interval for sigma2
+quantile(sigma2.1.use, c(.025, .975))
+#95% credible interval for sigma
+quantile(sqrt(sigma2.1.use), c(.01, .99))
+
+#95% credible interval for sigma2
+quantile(sigma2.2.use, c(.025, .975))
+#95% credible interval for sigma
+quantile(sqrt(sigma2.2.use), c(.01, .99))
+
+#There is a 95% chance, given our data and prior knowledge, 
 #that the standard deviation of the refraction index on 
 #this portion of the glass is between 0.0009 and 0.0024.
 
   
 ############################################
-## Posterior predictive: pi(X*|data)
-# We already have draws of (mu, sigma2) from the posterior distribution pi(mu, sigma2|data).  We can use those values to get draws of X*: 
-x.star <- rnorm(length(mu.use), mu.use, sqrt(sigma2.use))  
-plot(density(x.star), main="Posterior Predictive Distribution for Refraction Index of the Window", xlab="X*")
-
-#95% credible interval for the refraction index of a randomly selected piece of glass from this portion of the window
-quantile(x.star, c(.025, .975))
-# Would it be reasonable to find a piece of glass from this portion of the window with a refraction index higher than 1.52004 (max in the data)?
-mean(x.star>1.52004)
-#given our data and prior knowledge, there is a 49% chance of observing a piece of glass with refraction index greater than 1.52004.  So yes, very reasonable.  
-#(Note: more data would help us minimize that uncertainty for the range of refraction indices.)
-
-#Question that might be interesting to explore: How can I make it so that this probability is very low? Play around with the prior distributions to see what happens.
+# ## Posterior predictive: pi(X*|data)
+# # We already have draws of (mu, sigma2) from the posterior distribution pi(mu, sigma2|data).  We can use those values to get draws of X*: 
+# x.star <- rnorm(length(mu.use), mu.use, sqrt(sigma2.use))  
+# plot(density(x.star), main="Posterior Predictive Distribution for Refraction Index of the Window", xlab="X*")
+# 
+# #95% credible interval for the refraction index of a randomly selected piece of glass from this portion of the window
+# quantile(x.star, c(.025, .975))
+# # Would it be reasonable to find a piece of glass from this portion of the window with a refraction index higher than 1.52004 (max in the data)?
+# mean(x.star>1.52004)
+# #given our data and prior knowledge, there is a 49% chance of observing a piece of glass with refraction index greater than 1.52004.  So yes, very reasonable.  
+# #(Note: more data would help us minimize that uncertainty for the range of refraction indices.)
+# 
+# #Question that might be interesting to explore: How can I make it so that this probability is very low? Play around with the prior distributions to see what happens.
 ```
