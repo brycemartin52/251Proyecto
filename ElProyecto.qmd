@@ -78,7 +78,7 @@ data <- rbind(pop1, pop2)
 # summary(fit)
 ```
 
-Given the output of the confidence intervals, we can not confidently say that the log(n) has any significant correlative effect on the ratings.
+Given the output of the confidence intervals, we can not confidently say that the log(n) has any significant correlative effect on the ratings. Our 95% confidence interval of our beta value for log(N) is between -.56 and .70.
 
 We are therefore skip trying to estimate that as a parameter and estimate only two things for each population: the true ratings for each and the standard deviation of those ratings.
 
@@ -305,12 +305,14 @@ legend("topleft", c("Distribution \nof the differences"), lty=c(1, 1))
 
 ```{r}
 #95% credible interval
-print("Mean and 95% CI for average rating of University Mall")
+print("Mean, variance, and 95% CI for average rating of University Mall")
 mean(mu.1.use)
+var(mu.1.use)
 quantile(mu.1.use, c(.025, .975))
 
-print("Mean and 95% CI for average rating of Provo Towne Centre Mall")
+print("Mean, variance, and 95% CI for average rating of Provo Towne Centre Mall")
 mean(mu.2.use)
+var(mu.2.use)
 quantile(mu.2.use, c(.025, .975))
 # Given our data and prior knowledge, there is a 95% chance that
 # the true average rating for University Mall is between 3.81 and 4.25 and
@@ -322,13 +324,15 @@ We are able to conclude that, since our 95% CIs of our average ratings don't ove
 ```{r}
 #posterior mean of the average variance in mall ratings
 #95% credible interval for sigma2 for University Mall
-print("Mean and 95% CI for variance of ratings at University Mall")
+print("Mean, variance, and 95% CI for variance of ratings at University Mall")
 mean(sigma2.1.use)
+var(sigma2.1.use)
 quantile(sigma2.1.use, c(.025, .975))
 
 #95% credible interval for sigma2 for Provo Towne Centre Mall
-print("Mean and 95% CI for variance of ratings at Provo Towne Centre Mall")
+print("Mean, variance, and 95% CI for variance of ratings at Provo Towne Centre Mall")
 mean(sigma2.2.use)
+var(sigma2.2.use)
 quantile(sigma2.2.use, c(.025, .975)) 
 
 #While the variation in the plots may look different, their 95% confidence intervals overlap quite a bit, and we cannot conclude there is a difference between the two variations
