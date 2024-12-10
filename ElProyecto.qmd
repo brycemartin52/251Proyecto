@@ -13,7 +13,19 @@ It’s a Friday night in Provo and you want to go to a mall. But you realize the
 
 As there isn't a known posterior distribution for our average store rating data, we use a Monte Carlo approximation to analyze our data. Our prior is an uninformative uniform distribution with parameters 1 to 5 because we wanted to ensure a prior that would least effect our posterior distribution. This gives equal weight to all possible values. For our likelihood, we assume a good approximation may be the beta distribution with alpha = 3 and beta = 1.5, as we imagine the data is more left skewed. We acknowledge that the beta distribution doesn't allow for the endpoints, so we slightly change the data on the endpoints (5 star to 4.99, 1 star to 1.01). Since we aren't predicting how any individual would rate the store, but instead the stores overall rating, we can confidently say that any given true store's rating is not equal to exactly 1 or 5 stars. This allows us to use the beta distribution for our likelihood.
 
-Our model for a single store would be:
+For both malls, our models will be the same.
+
+Our model for the relationship between rating and number of ratings is:
+
+$$
+Y_i \sim \beta_0 + \beta_1x_i + \epsilon_i
+$$
+
+$$
+\text{Where } \epsilon_i \sim N(\mu_1, \sigma^2_1)
+$$
+
+Our model for the store averages would be:
 
 $$
 x_i = \text{Average rating for the ith store at a specific mall}
@@ -28,7 +40,7 @@ $$
 $$
 
 $$
-\text{Likelihood: }f(Data | \mu, \sigma^2) \sim Beta(3,1.5)
+\text{Likelihood: }f(Data | \mu_a, \sigma^2_a) \sim Beta(3,1.5)
 $$
 
 ## Data Prep
