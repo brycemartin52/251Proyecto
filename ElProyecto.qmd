@@ -323,9 +323,9 @@ However, we aren't able to conclude the same for our variance, since our 95% CIs
 
 # Conclusions
 
-It's decided. If you have no particular store destination in mind, then the better better is to spend your Friday night at the Provo Towne Centre Mall. You maybe be concerned that their stores may not be as consistently well rated, however, there is no significant difference of ratings given our prior assumptions and data collected.
+It's decided. If you have no particular store destination in mind, then the better place is to spend your Friday night is at the Provo Towne Centre Mall. You maybe be concerned that their stores may not be as consistently well rated, however, there is no significant variance of ratings given our prior assumptions and data collected.
 
-Before we collected our data, we assumed a very uninformative prior given that we didn't know how stores would be rated in general (hospitals tend to rate super low, as compared to Chick-fil-a...). Using the uniform distribution allowed our posterior density to be nearly completely dependent on our data. Because of the aforementioned problems with the Beta distribution being non-inclusive on the extremes, our data is admittedly very slightly doctored. However, our research of different distributions didn't come up with a better alternative, so it's the best that we got.
+Before we collected our data, we assumed a very uninformative prior given that we didn't know how stores would be rated in general (hospitals tend to rate super low, as compared to Chick-fil-a...). Using the uniform distribution allowed our posterior density to be nearly completely dependent on our data. Because of the aforementioned problems with the Beta distribution being non-inclusive on the extremes, our data is admittedly very slightly doctored. However, our research of different distributions didn't come up with a better alternative, so it's the best that we got. The variance we were a little more sure about, but our data moved the variance for both populations to be higher than we had expected.
 
 In future analyses, we can also explore the relationship between our variables and potentially other variables, such as total number of stores, total size of lot, and industry of individual stores.
 
