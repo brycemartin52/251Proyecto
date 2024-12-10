@@ -5,6 +5,8 @@ format: pdf
 editor: visual
 ---
 
+
+
 ## Introduction
 
 It’s a Friday night in Provo and you want to go to a mall. But you realize there are two nearby. How do you decide which to visit? Both the Provo Towne Centre and University Place Mall seem to have a variety of stores and capabilities, making the decision even harder. Our research question thus follows: On average, which mall has better store ratings and which has more consistent ratings? Without having a specific store in mind, one way we can measure which mall is better is by exploring the average store ratings and the variance for the averages at each mall. That would be two parameters for each mall, totalling 4 parameters. This would tell us which mall, on average, is better, while also letting us know how consistent we can expect our experience across each mall to be. Additionally, we can also see if there is a relationship between the store ratings and number of ratings, helping us know whether having more ratings indicates an overall lower or higher average. This relationship being the slope in a linear regression would be our final, fifth parameter. We randomly selected 30 stores from each malls' website and used the ratings and number of ratings on Google Maps for each of the stores as our sample.
@@ -44,6 +46,8 @@ $$
 $$
 
 ## Data Prep
+
+
 
 ```{r}
 #| echo: false
@@ -109,9 +113,13 @@ data <- rbind(pop1, pop2)
 # summary(fit)
 ```
 
+
+
 Given the output of the confidence intervals, we can not confidently say that the log(n) has any significant correlative effect on the ratings. Our 95% confidence interval of our beta value for log(N) is between -.56 and .70.
 
 We are therefore skip trying to estimate that as a parameter and estimate only two things for each population: the true ratings for each and the standard deviation of those ratings.
+
+
 
 ```{r}
 #| echo: false
@@ -134,7 +142,11 @@ curve(1+4*dbeta(x, alpha, beta), xlim=c(1, 5), ylab="prior density", main=expres
 curve(dinvgamma(x, gamma, phi), xlim=c(0, 5), ylab="prior density", main=expression(pi(sigma^2)), xlab=expression(sigma^2))
 ```
 
+
+
 Because we're trying to estimate two parameters of interest, we will use Gibbs Sampling to estimate both the average rating as well as the variance of the ratings.
+
+
 
 ```{r}
 #| include: false
@@ -271,7 +283,11 @@ plot(sigma2.1.use, type='l')
 plot(sigma2.2.use, type='l')
 ```
 
+
+
 We are not able to derive the posterior/full conditional distributions for the parameters we are estimating since there is no known distribution for a normal prior/beta likelihood or a double inverse gamma distribution. However we are able to plot them as a 3D graph, and not that there doesn't appear to be any significant correlation between the two for either populations.
+
+
 
 ```{r}
 #| echo: false
@@ -340,7 +356,11 @@ quantile(mu.2.use, c(.025, .975))
 # the true average rating for Provo Towne Centre Mall is between 4.34 and 4.63
 ```
 
+
+
 We are able to conclude that, since our 95% CIs of our average ratings don't overlap, they are statistically significant. The true average rating for University Mall is between 3.81 and 4.25, and the true average rating for Provo Towne Centre Mall is between 4.34 and 4.63.
+
+
 
 ```{r}
 #| include: false
@@ -360,6 +380,8 @@ quantile(sigma2.2.use, c(.025, .975))
 #While the variation in the plots may look different, their 95% confidence intervals overlap quite a bit, and we cannot conclude there is a difference between the two variations
 ```
 
+
+
 However, we aren't able to conclude the same for our variance, since our 95% CIs of our average ratings overlap. The true average variation of ratings for University Mall is between .455 and 1.20, and the true average variation of ratings for Provo Towne Centre Mall is between 0.581 and 1.60.
 
 # Conclusions
@@ -371,6 +393,8 @@ Before we collected our data, we assumed a very uninformative prior given that w
 Additionally, while the log(N) didn't have any initial significance in our linear regression, given some more data and perhaps some prior knowledge of how stores encourage people to rate, we may be able to discover if there is a more complicated underlying relationship between them all.
 
 # Appendix (all code)
+
+
 
 ```{r}
 #| warning: false
@@ -643,3 +667,4 @@ quantile(sigma2.2.use, c(.025, .975))
 
 #While the variation in the plots may look different, their 95% confidence intervals overlap quite a bit, and we cannot conclude there is a difference between the two variations
 ```
+
