@@ -5,13 +5,11 @@ format: pdf
 editor: visual
 ---
 
-Project idea: we want to compare the quality of the two closest malls to BYU: Provo City Center & University Parkway. We will be gathering sample ratings by randomly picking stores from each and getting their ratings off of google maps. Our parameters of interest are the average rating for the stores in each location (our ‘populations’), as well as the standard deviation of the ratings. Another thing we could look into is any correlation between number of ratings and overall rating.
+## Introduction
 
-We’ll likely model the ratings with a beta distribution (adjusting the 5 star to be ‘100%’ and 1 star to be ‘0%’) and model the count data with a normal distribution (taking the log to transform the data).
+Its a Friday night in Provo and you want to go to a mall. But you realize there are two nearby. How do you decide which to visit? Both the Provo Towne Centre and University Place Mall seem to have a variety of stores and capabilities, making the decision even harder. Our research question thus follows: On average, which mall has better store ratings and which has more consistent ratings? Without having a specific store in mind, one way we can measure which mall is better is by exploring the average store ratings and the variance for the averages at each mall. That would be two parameters for each mall, totalling 4 parameters. This would tell us which mall, on average, is better, while also letting us know how consistent we can expect our experience across each mall to be. Additionally, we can also see if there is a relationship between the store ratings and number of ratings, helping us know whether having more ratings indicates an overall lower or higher average. This relationship being the slope in a linear regression would be our final, fifth parameter. We randomly selected 30 stores from each malls' website and used the ratings and number of ratings on Google Maps for each of the stores as our sample..
 
-The rating data is easy to (manually) get from google maps, and we’ll randomly pick stores based on the malls’ respective websites with all their stores listed. 
-
-We hope that at the end of this analysis we will be able to determine the overall quality of both malls, how close the stores tend to be of similar quality, and possibly even if the the more ‘niche’ stores (stores with lower counts of ratings) have a different rating on average than the high rating count stores. This can help local residents make informed decisions on which mall to go to when they are looking for consistent quality or fewer people.
+## Methods
 
 ## Data Prep
 
