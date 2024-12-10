@@ -24,7 +24,7 @@ $$
 $$
 
 $$
-\text{Prior: } X \sim Unif(0,1)
+\text{Prior: } Rating \sim Unif(1,5)
 $$
 
 $$
