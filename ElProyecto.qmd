@@ -262,78 +262,79 @@ plot(sigma2.1.use, type='l')
 plot(sigma2.2.use, type='l')
 ```
 
+We are not able to derive the posterior/full conditional distributions for the parameters we are estimating since there is no known distribution for a normal prior/beta likelihood or a double inverse gamma distribution. However we are able to plot them as a 3D graph, and not that there doesn't appear to be any significant correlation between the two for either populations.
+
 ```{r}
 #| echo: false
 #SUMMARIZE THE POSTERIOR DISTRIBUTION(S)
 
-# joint posterior distribution of mu and sigma2 (for both populations)
+# JOINT POSTERIOR distribution of mu and sigma2 (for both populations)
 par(mfrow=c(1,1))
 joint.dens <- kde2d(mu.1.use, sigma2.1.use, n=100)
 persp(joint.dens, xlab="mu", ylab="sigma2", phi=30, theta=45)
-
 hist3D(joint.dens$x, joint.dens$y, joint.dens$z, xlab="mu", ylab="sigma2", phi=30, theta=45)
-
 
 par(mfrow=c(1,1))
 joint.dens <- kde2d(mu.2.use, sigma2.2.use, n=100)
 persp(joint.dens, xlab="mu", ylab="sigma2", phi=30, theta=45)
-
 hist3D(joint.dens$x, joint.dens$y, joint.dens$z, xlab="mu", ylab="sigma2", phi=30, theta=45)
 
-# posterior distribution of mu 
+# POSTERIOR distribution of mu 
 par(mfrow=c(1,2))
-
 plot(density(mu.1.use), xlab=expression(mu), ylab="density", main=expression(pi(mu~"(University Mall) |"~data)))
 curve(dunif(x, 1, 5), lty=2, add=T)
 legend("topleft", c("Prior", "Posterior"), lty=c(2, 1))
-
 plot(density(mu.2.use), xlab=expression(mu), ylab="density", main=expression(pi(mu~"(Provo Mall) |"~data)))
 curve(dunif(x, 1, 5), lty=2, add=T)
 legend("topleft", c("Prior", "Posterior"), lty=c(2, 1))
 
-# Posterior distribution of the dif(mu.1 and mu.2)
-diffs <- mu.1.use - mu.2.use
-plot(density(diffs), xlab=expression(mu), ylab="density", main=expression(pi(mu~"(University Mall - Provo) |"~data)))
-legend("topleft", c("Distribution \nof the differences"), lty=c(1, 1))
-
-#95% credible interval
-quantile(mu.1.use, c(.025, .975))
-quantile(mu.2.use, c(.025, .975))
-# Given our data and prior knowledge, there is a 95% chance that
-# the true average rating for University mall is between 3.81 and 4.25 and
-# the true average rating for Provo mall is between 4.34 and 4.63
-
-#posterior mean of the average mall ratings
-mean(mu.1.use)
-mean(mu.2.use)
-
-#posterior mean of the average variance in mall ratings
-mean(sigma2.1.use)
-mean(sigma2.2.use)
-
-
-# posterior distribution of sigma2
+# POSTERIOR distribution of sigma2
 par(mfrow=c(1,1))
 plot(density(sigma2.1.use), xlab=expression(sigma^2), main=expression(pi(sigma^2~"(University Mall)|"~data)))
 curve(dinvgamma(x, gamma, phi), add=T, lty=2)
 legend("topright", c("Prior", "Posterior"), lty=c(1,.5))
-
 plot(density(sigma2.2.use), xlab=expression(sigma^2), main=expression(pi(sigma^2~"(Provo Mall)|"~data)))
 curve(dinvgamma(x, gamma, phi), add=T, lty=2)
 legend("topright", c("Prior", "Posterior"), lty=c(1,.5))
 
-#95% credible interval for sigma2
-quantile(sigma2.1.use, c(.025, .975))
-#95% credible interval for sigma
-quantile(sqrt(sigma2.1.use), c(.01, .99))
+# POSTERIOR distribution of the dif(mu.1 and mu.2)
+diffs <- mu.1.use - mu.2.use
+plot(density(diffs), xlab=expression(mu), ylab="density", main=expression(pi(mu~"(University Mall - Provo) |"~data)))
+legend("topleft", c("Distribution \nof the differences"), lty=c(1, 1))
+```
 
-#95% credible interval for sigma2
-quantile(sigma2.2.use, c(.025, .975))
-#95% credible interval for sigma
-quantile(sqrt(sigma2.2.use), c(.01, .99))
+```{r}
+#95% credible interval
+print("Mean and 95% CI for average rating of University Mall")
+mean(mu.1.use)
+quantile(mu.1.use, c(.025, .975))
+
+print("Mean and 95% CI for average rating of Provo Towne Centre Mall")
+mean(mu.2.use)
+quantile(mu.2.use, c(.025, .975))
+# Given our data and prior knowledge, there is a 95% chance that
+# the true average rating for University Mall is between 3.81 and 4.25 and
+# the true average rating for Provo Towne Centre Mall is between 4.34 and 4.63
+```
+
+We are able to conclude that, since our 95% CIs of our average ratings don't overlap, they are statistically significant. The true average rating for University Mall is between 3.81 and 4.25, and the true average rating for Provo Towne Centre Mall is between 4.34 and 4.63.
+
+```{r}
+#posterior mean of the average variance in mall ratings
+#95% credible interval for sigma2 for University Mall
+print("Mean and 95% CI for variance of ratings at University Mall")
+mean(sigma2.1.use)
+quantile(sigma2.1.use, c(.025, .975))
+
+#95% credible interval for sigma2 for Provo Towne Centre Mall
+print("Mean and 95% CI for variance of ratings at Provo Towne Centre Mall")
+mean(sigma2.2.use)
+quantile(sigma2.2.use, c(.025, .975)) 
 
 #While the variation in the plots may look different, their 95% confidence intervals overlap quite a bit, and we cannot conclude there is a difference between the two variations
 ```
+
+However, we aren't able to conclude the same for our variance, since our 95% CIs of our average ratings overlap. The true average rating for University Mall is between .455 and 1.20, and the true average rating for Provo Towne Centre Mall is between 0.581 and 1.60.
 
 # Appendix (all code)
 
@@ -472,7 +473,7 @@ sigma2.2.save[1] <- sigma2
 accept.mu <- 0
 s.2.mu <- .22
 
-#Gibbs Sampling Algorithm For Pop2 (Provo City Center Mall)
+#Gibbs Sampling Algorithm For Pop2 (Provo Towne Centre Malll)
 for(t in 2:iters){
   # Use Metropolis RW to draw from the full conditional distribution
   mu.star <- rnorm(1, mu, s.2.mu)
@@ -559,15 +560,15 @@ legend("topleft", c("Prior", "Posterior"), lty=c(2, 1))
 
 # Posterior distribution of the dif(mu.1 and mu.2)
 diffs <- mu.1.use - mu.2.use
-plot(density(diffs), xlab=expression(mu), ylab="density", main=expression(pi(mu~"(University Mall - Provo) |"~data)))
+plot(density(diffs), xlab=expression(mu), ylab="density", main=expression(pi(mu~"(University - Provo) |"~data)))
 legend("topleft", c("Distribution \nof the differences"), lty=c(1, 1))
 
 #95% credible interval
 quantile(mu.1.use, c(.025, .975))
 quantile(mu.2.use, c(.025, .975))
 # Given our data and prior knowledge, there is a 95% chance that
-# the true average rating for University mall is between 3.81 and 4.25 and
-# the true average rating for Provo mall is between 4.34 and 4.63
+# the true average rating for University Mall is between 3.81 and 4.25 and
+# the true average rating for Provo Towne Centre Mall is between 4.34 and 4.63
 
 #posterior mean of the average mall ratings
 mean(mu.1.use)
