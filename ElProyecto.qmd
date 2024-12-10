@@ -11,7 +11,7 @@ It’s a Friday night in Provo and you want to go to a mall. But you realize the
 
 ## Methods
 
-As there isn't a known posterior distribution for our average store rating data, we use a Monte Carlo approximation to analyze our data. Our prior is an uninformative uniform distribution with parameters 1 to 5 because we wanted to ensure a prior that would least effect our posterior distribution. This gives equal weight to all possible values. For our likelihood, we assume a good approximation may be the beta distribution with alpha = 3 and beta = 1.5, as we imagine the data is more left skewed. We acknowledge that the beta distribution doesn't allow for the endpoints, so we slightly change the data on the endpoints (5 star to 4.999, 1 star to 1.001). Since we aren't predicting how any individual would rate the store, but instead the stores overall rating, we can confidently say that any given true store's rating is not equal to exactly 1 or 5 stars. This allows us to use the beta distribution for our likelihood. 
+As there isn't a known posterior distribution for our average store rating data, we use a Monte Carlo approximation to analyze our data. Our prior is an uninformative uniform distribution with parameters 1 to 5 because we wanted to ensure a prior that would least effect our posterior distribution. This gives equal weight to all possible values. For our likelihood, we assume a good approximation may be the beta distribution with alpha = 3 and beta = 1.5, as we imagine the data is more left skewed. We acknowledge that the beta distribution doesn't allow for the endpoints, so we slightly change the data on the endpoints (5 star to 4.999, 1 star to 1.001). Since we aren't predicting how any individual would rate the store, but instead the stores overall rating, we can confidently say that any given true store's rating is not equal to exactly 1 or 5 stars. This allows us to use the beta distribution for our likelihood.
 
 For both malls, our models will be the same.
 
@@ -36,7 +36,6 @@ $$
 $$
 
 We randomly selected 30 stores from each malls' website and used the ratings and number of ratings on Google Maps for each of the stores as our sample.
-
 
 ## Data Prep
 
@@ -285,7 +284,7 @@ legend("topright", c("Prior", "Posterior"), lty=c(1, 2), cex=0.5, bty="n")
 # POSTERIOR distribution of the difference (mu.1 - mu.2)
 diffs <- mu.1.use - mu.2.use
 plot(density(diffs), xlab=expression(mu), ylab="density", 
-     main=expression(pi(mu~"(University Mall - Provo) |"~data)))
+     main=expression(pi(mu~"(University - Provo) |"~data)))
 legend("topleft", c("Differences"), lty=c(1), cex=0.5, bty="n")
 ```
 
@@ -385,20 +384,20 @@ data <- rbind(pop1, pop2)
 ############################
 
 # ## Fit Bayesian linear regression model
-# fit <- brm(
-#   formula = Rating ~ logN + (1 + logN | Population),  # Random intercept and slope for Population
-#   data = data,
-#   family = gaussian(),  # Normal likelihood
-#   prior = c(
-#     prior(normal(4, 2), class = "Intercept"),
-#     prior(normal(0, 10), class = "b"),
-#     prior(cauchy(0, 20), class = "sd")  # Prior on group-level standard deviations
-#   ),
-#   iter = 4000,  # Number of iterations
-#   chains = 4,   # Number of MCMC chains
-#   seed = 123    # For reproducibility
-# )
-# summary(fit)
+fit <- brm(
+  formula = Rating ~ logN + (1 + logN | Population),  # Random intercept and slope for Population
+  data = data,
+  family = gaussian(),  # Normal likelihood
+  prior = c(
+    prior(normal(4, 2), class = "Intercept"),
+    prior(normal(0, 10), class = "b"),
+    prior(cauchy(0, 20), class = "sd")  # Prior on group-level standard deviations
+  ),
+  iter = 4000,  # Number of iterations
+  chains = 4,   # Number of MCMC chains
+  seed = 123    # For reproducibility
+)
+summary(fit)
 
 ############################
 
