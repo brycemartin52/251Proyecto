@@ -5,13 +5,29 @@ format: pdf
 editor: visual
 ---
 
-Project idea: we want to compare the quality of the two closest malls to BYU: Provo City Center & University Parkway. We will be gathering sample ratings by randomly picking stores from each and getting their ratings off of google maps. Our parameters of interest are the average rating for the stores in each location (our ‘populations’), as well as the standard deviation of the ratings. Another thing we could look into is any correlation between number of ratings and overall rating.
+It’s a Friday night in Provo and you want to go to a mall. But you realize there are two nearby. How do you decide which to visit? Both the Provo Towne Centre and University Place Mall seem to have a variety of stores and capabilities, making the decision even harder. Our research question thus follows: On average, which mall has better store ratings and which has more consistent ratings? Without having a specific store in mind, one way we can measure which mall is better is by exploring the average store ratings and the variance for the averages at each mall. That would be two parameters for each mall, totalling 4 parameters. This would tell us which mall, on average, is better, while also letting us know how consistent we can expect our experience across each mall to be. Additionally, we can also see if there is a relationship between the store ratings and number of ratings, helping us know whether having more ratings indicates an overall lower or higher average. This relationship being the slope in a linear regression would be our final, fifth parameter. We randomly selected 30 stores from each malls' website and used the ratings and number of ratings on Google Maps for each of the stores as our sample.
 
-We’ll likely model the ratings with a beta distribution (adjusting the 5 star to be ‘100%’ and 1 star to be ‘0%’) and model the count data with a normal distribution (taking the log to transform the data).
+## Methods
 
-The rating data is easy to (manually) get from google maps, and we’ll randomly pick stores based on the malls’ respective websites with all their stores listed.
+As there isn't a known posterior distribution for our average store rating data, we use a Monte Carlo approximation to analyze our data. Our prior is an uninformative uniform distribution with parameters 1 to 5 because we wanted to ensure a prior that would least effect our posterior distribution. This gives equal weight to all possible values. For our likelihood, we assume a good approximation may be the beta distribution with alpha = 3 and beta = 1.5, as we imagine the data is more left skewed. We acknowledge that the beta distribution doesn't allow for the endpoints, so we slightly change the data on the endpoints (5 star to 4.99, 1 star to 1.01). Since we aren't predicting how any individual would rate the store, but instead the stores overall rating, we can confidently say that any given true store's rating is not equal to exactly 1 or 5 stars. This allows us to use the beta distribution for our likelihood.
 
-We hope that at the end of this analysis we will be able to determine the overall quality of both malls, how close the stores tend to be of similar quality, and possibly even if the the more ‘niche’ stores (stores with lower counts of ratings) have a different rating on average than the high rating count stores. This can help local residents make informed decisions on which mall to go to when they are looking for consistent quality or fewer people.
+Our model for a single store would be:
+
+$$
+x_i = \text{Average rating for the ith store at a specific mall}
+$$
+
+$$
+\text{Data} = x_1, x_2, ..., x_n
+$$
+
+$$
+\text{Prior: } X \sim Unif(0,1)
+$$
+
+$$
+\text{Likelihood: }f(Data | \mu, \sigma^2) \sim Beta(3,1.5)
+$$
 
 ## Data Prep
 
@@ -82,25 +98,7 @@ Given the output of the confidence intervals, we can not confidently say that th
 
 We are therefore skip trying to estimate that as a parameter and estimate only two things for each population: the true ratings for each and the standard deviation of those ratings.
 
-Because there isn't a known posterior distribution for our rating data, we use a Monte Carlo approximation to analyze our data. Our prior is an uninformative uniform distribution because we wanted to ensure a prior that would least effect our posterior distribution. For our likelihood, we assume a good approximation may be the beta distribution with alpha = 3 and beta = 1.5, as we imagine the data is more left skewed. We acknowledge that the beta distribution doesn't allow for the endpoints, so we slightly change the data on the endpoints (5 star to 4.99, 1 star to 1.01). Since we aren't predicting how any individual would rate the store but the stores overall rating, we can confidently say that a given true store's rating is not equal to exactly 1 or 5 stars. This allows us to use the beta distribution for our likelihood.
 
-Our model for a single store would be:
-
-$$
-x_i = \text{Average rating for the ith store at a specific mall}
-$$
-
-$$
-\text{Data} = x_1, x_2, ..., x_n
-$$
-
-$$
-\text{Prior: } X \sim Unif(0,1)
-$$
-
-$$
-\text{Likelihood: }f(Data | \mu, \sigma^2) \sim Beta(3,1.5)
-$$
 
 ```{r}
 #| echo: false
