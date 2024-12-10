@@ -7,25 +7,13 @@ editor: visual
 
 ## Introduction
 
-It’s a Friday night in Provo and you want to go to a mall. But you realize there are two nearby. How do you decide which to visit? Both the Provo Towne Centre and University Place Mall seem to have a variety of stores and capabilities, making the decision even harder. Our research question thus follows: On average, which mall has better store ratings and which has more consistent ratings? Without having a specific store in mind, one way we can measure which mall is better is by exploring the average store ratings and the variance for the averages at each mall. That would be two parameters for each mall, totaling 4 parameters. This would tell us which mall, on average, is better, while also letting us know how consistent we can expect our experience across each mall to be. Additionally, we can also see if there is a relationship between the store ratings and number of ratings, helping us know whether having more ratings indicates an overall lower or higher average. This relationship being the slope in a linear regression would be our final, fifth parameter. We randomly selected 30 stores from each malls' website and used the ratings and number of ratings on Google Maps for each of the stores as our sample.
+It’s a Friday night in Provo and you want to go to a mall. But you realize there are two nearby. How do you decide which to visit? Both the Provo Towne Centre and University Place Mall seem to have a variety of stores and capabilities, making the decision even harder. Our research question thus follows: On average, which mall has better store ratings and which has more consistent ratings? Without having a specific store in mind, one way we can measure which mall is better is by exploring the average store ratings and the variance for the averages at each mall. That would be two parameters for each mall, totaling 4 parameters. This would tell us which mall, on average, is better, while also letting us know how consistent we can expect our experience across each mall to be. We randomly selected 30 stores from each malls' website and used the ratings and number of ratings on Google Maps for each of the stores as our sample.
 
 ## Methods
 
 As there isn't a known posterior distribution for our average store rating data, we use a Monte Carlo approximation to analyze our data. Our prior is an uninformative uniform distribution with parameters 1 to 5 because we wanted to ensure a prior that would least effect our posterior distribution. This gives equal weight to all possible values. For our likelihood, we assume a good approximation may be the beta distribution with alpha = 3 and beta = 1.5, as we imagine the data is more left skewed. We acknowledge that the beta distribution doesn't allow for the endpoints, so we slightly change the data on the endpoints (5 star to 4.999, 1 star to 1.001). Since we aren't predicting how any individual would rate the store, but instead the stores overall rating, we can confidently say that any given true store's rating is not equal to exactly 1 or 5 stars. This allows us to use the beta distribution for our likelihood.
 
 For both malls, our models will be the same.
-
-Our model for the relationship between rating and number of ratings is:
-
-$$
-Y_i \sim \beta_0 + \beta_1x_i + \epsilon_i
-$$
-
-$$
-\text{Where } \epsilon_i \sim N(\mu_1, \sigma^2_1)
-$$
-
-Our model for the store averages would be:
 
 $$
 x_i = \text{Average rating for the ith store at a specific mall}
@@ -83,35 +71,6 @@ pop2 <- data.frame(
 
 data <- rbind(pop1, pop2)
 ```
-
-```{r}
-#| include: false
-#| echo: false
-# # Fit Bayesian linear regression model
-# fit <- brm(
-#   formula = Rating ~ logN + (1 + logN | Population),  # Random intercept and slope for Population
-#   data = data,
-#   family = gaussian(),  # Normal likelihood
-#   prior = c(
-#     prior(normal(4, 2), class = "Intercept"),
-#     prior(normal(0, 10), class = "b"),
-#     prior(cauchy(0, 20), class = "sd")  # Prior on group-level standard deviations
-#   ),
-#   iter = 4000,  # Number of iterations
-#   chains = 4,   # Number of MCMC chains
-#   seed = 123    # For reproducibility
-# )
-```
-
-```{r}
-#| echo: false
-#| warning: false
-# summary(fit)
-```
-
-Given the output of the confidence intervals, we can not confidently say that the log(n) has any significant correlative effect on the ratings. Our 95% confidence interval of our beta value for log(N) is between -.56 and .70.
-
-We are therefore skip trying to estimate that as a parameter and estimate only two things for each population: the true ratings for each and the standard deviation of those ratings.
 
 ```{r}
 #| echo: false
@@ -368,9 +327,28 @@ It's decided. If you have no particular store destination in mind, then the bett
 
 Before we collected our data, we assumed a very uninformative prior given that we didn't know how stores would be rated in general (hospitals tend to rate super low, as compared to Chick-fil-a...). Using the uniform distribution allowed our posterior density to be nearly completely dependent on our data. Because of the aforementioned problems with the Beta distribution being non-inclusive on the extremes, our data is admittedly very slightly doctored. However, our research of different distributions didn't come up with a better alternative, so it's the best that we got.
 
-Additionally, while the log(N) didn't have any initial significance in our linear regression, given some more data and perhaps some prior knowledge of how stores encourage people to rate, we may be able to discover if there is a more complicated underlying relationship between them all.
+In future analyses, we can also explore the relationship between our variables and potentially other variables, such as total number of stores, total size of lot, and industry of individual stores.
 
 # Appendix (all code)
+## Part A: Regression
+
+As an aside, we had considered seeing if there is a relationship between the store ratings and number of ratings, helping us know whether having more ratings indicates an overall lower or higher average. As the project would potentially get too long and would be less directly applicable to whether the ratings differed between the malls, we decided exclude this parameter from our analysis. However, for reference and/or fun, here is some of our code and analysis:
+
+The beginning of our model for the relationship between rating and number of ratings is:
+
+$$
+Y_i \sim \beta_0 + \beta_1x_i + \epsilon_i
+$$
+
+$$
+\text{Where } \epsilon_i \sim N(\mu_1, \sigma^2_1)
+$$
+
+Given the output of the confidence intervals, we can not confidently say that the log(n) has any significant correlative effect on the ratings. Our 95% confidence interval of our beta value for log(N) is between -.56 and .70.
+
+While the log(N) didn't have any initial significance in our linear regression, given some more data and perhaps some prior knowledge of how stores encourage people to rate, we may be able to discover if there is a more complicated underlying relationship between them all. You can find the code for some of the regression below with the rest of the code.
+
+## Part B: Code
 
 ```{r}
 #| warning: false
@@ -507,7 +485,7 @@ sigma2.2.save[1] <- sigma2
 accept.mu <- 0
 s.2.mu <- .22
 
-#Gibbs Sampling Algorithm For Pop2 (Provo Towne Centre Malll)
+#Gibbs Sampling Algorithm For Pop2 (Provo Towne Centre Mall)
 for(t in 2:iters){
   # Use Metropolis RW to draw from the full conditional distribution
   mu.star <- rnorm(1, mu, s.2.mu)
