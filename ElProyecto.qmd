@@ -330,6 +330,7 @@ Before we collected our data, we assumed a very uninformative prior given that w
 In future analyses, we can also explore the relationship between our variables and potentially other variables, such as total number of stores, total size of lot, and industry of individual stores.
 
 # Appendix (all code)
+
 ## Part A: Regression
 
 As an aside, we had considered seeing if there is a relationship between the store ratings and number of ratings, helping us know whether having more ratings indicates an overall lower or higher average. As the project would potentially get too long and would be less directly applicable to whether the ratings differed between the malls, we decided exclude this parameter from our analysis. However, for reference and/or fun, here is some of our code and analysis:
@@ -352,7 +353,6 @@ While the log(N) didn't have any initial significance in our linear regression, 
 
 ```{r}
 #| warning: false
-#| include: false
 #| echo: true
 ## Loading all of the libraries
 library(brms)
@@ -545,14 +545,14 @@ plot(sigma2.2.use, type='l')
 
 #SUMMARIZE THE POSTERIOR DISTRIBUTION(S)
 
-# # JOINT POSTERIOR distribution of mu and sigma2 (for both populations)
-# par(mfrow=c(1,2))
-# joint.dens <- kde2d(mu.1.use, sigma2.1.use, n=100)
-# persp(joint.dens, xlab="mu", ylab="sigma2", phi=30, theta=45)
-# hist3D(joint.dens$x, joint.dens$y, joint.dens$z, xlab="mu", ylab="sigma2", phi=30, theta=45)
-# joint.dens <- kde2d(mu.2.use, sigma2.2.use, n=100)
-# persp(joint.dens, xlab="mu", ylab="sigma2", phi=30, theta=45)
-# hist3D(joint.dens$x, joint.dens$y, joint.dens$z, xlab="mu", ylab="sigma2", phi=30, theta=45)
+# JOINT POSTERIOR distribution of mu and sigma2 (for both populations)
+par(mfrow=c(1,2))
+joint.dens <- kde2d(mu.1.use, sigma2.1.use, n=100)
+persp(joint.dens, xlab="mu", ylab="sigma2", phi=30, theta=45)
+hist3D(joint.dens$x, joint.dens$y, joint.dens$z, xlab="mu", ylab="sigma2", phi=30, theta=45)
+joint.dens <- kde2d(mu.2.use, sigma2.2.use, n=100)
+persp(joint.dens, xlab="mu", ylab="sigma2", phi=30, theta=45)
+hist3D(joint.dens$x, joint.dens$y, joint.dens$z, xlab="mu", ylab="sigma2", phi=30, theta=45)
 
 # Adjusting parameters for tighter layout
 par(mfrow=c(2,3),   # Fit 6 plots (2 rows, 3 columns)
