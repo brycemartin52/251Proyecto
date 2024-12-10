@@ -4,6 +4,7 @@ author: "Derek Walton & Bryce Martin"
 format: pdf
 editor: visual
 ---
+## Introduction
 
 It’s a Friday night in Provo and you want to go to a mall. But you realize there are two nearby. How do you decide which to visit? Both the Provo Towne Centre and University Place Mall seem to have a variety of stores and capabilities, making the decision even harder. Our research question thus follows: On average, which mall has better store ratings and which has more consistent ratings? Without having a specific store in mind, one way we can measure which mall is better is by exploring the average store ratings and the variance for the averages at each mall. That would be two parameters for each mall, totalling 4 parameters. This would tell us which mall, on average, is better, while also letting us know how consistent we can expect our experience across each mall to be. Additionally, we can also see if there is a relationship between the store ratings and number of ratings, helping us know whether having more ratings indicates an overall lower or higher average. This relationship being the slope in a linear regression would be our final, fifth parameter. We randomly selected 30 stores from each malls' website and used the ratings and number of ratings on Google Maps for each of the stores as our sample.
 
