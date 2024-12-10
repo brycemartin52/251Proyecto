@@ -286,28 +286,41 @@ We are not able to derive the posterior/full conditional distributions for the p
 # persp(joint.dens, xlab="mu", ylab="sigma2", phi=30, theta=45)
 # hist3D(joint.dens$x, joint.dens$y, joint.dens$z, xlab="mu", ylab="sigma2", phi=30, theta=45)
 
-# POSTERIOR distribution of mu 
-par(mfrow=c(1,2))
-plot(density(mu.1.use), xlab=expression(mu), ylab="density", main=expression(pi(mu~"(University Mall) |"~data)))
+# Adjusting parameters for tighter layout
+par(mfrow=c(2,3),   # Fit 6 plots (2 rows, 3 columns)
+    cex=0.7,        # Reduce text and symbol size
+    cex.axis=0.6,   # Smaller axis labels
+    cex.lab=0.7,    # Smaller axis titles
+    mar=c(3, 3, 2, 1),  # Smaller plot margins (bottom, left, top, right)
+    oma=c(1, 1, 1, 1))  # Smaller outer margins
+
+# POSTERIOR distribution of mu
+plot(density(mu.1.use), xlab=expression(mu), ylab="density", 
+     main=expression(pi(mu~"(University Mall) |"~data)))
 curve(dunif(x, 1, 5), lty=2, add=T)
-legend("topleft", c("Prior", "Posterior"), lty=c(2, 1))
-plot(density(mu.2.use), xlab=expression(mu), ylab="density", main=expression(pi(mu~"(Provo Mall) |"~data)))
+legend("topleft", c("Prior", "Posterior"), lty=c(2, 1), cex=0.5, bty="n")
+
+plot(density(mu.2.use), xlab=expression(mu), ylab="density", 
+     main=expression(pi(mu~"(Provo Mall) |"~data)))
 curve(dunif(x, 1, 5), lty=2, add=T)
-legend("topleft", c("Prior", "Posterior"), lty=c(2, 1))
+legend("topleft", c("Prior", "Posterior"), lty=c(2, 1), cex=0.5, bty="n")
 
 # POSTERIOR distribution of sigma2
-par(mfrow=c(1,2))
-plot(density(sigma2.1.use), xlab=expression(sigma^2), main=expression(pi(sigma^2~"(University Mall)|"~data)))
+plot(density(sigma2.1.use), xlab=expression(sigma^2), 
+     main=expression(pi(sigma^2~"(University Mall)|"~data)))
 curve(dinvgamma(x, gamma, phi), add=T, lty=2)
-legend("topright", c("Prior", "Posterior"), lty=c(1,.5))
-plot(density(sigma2.2.use), xlab=expression(sigma^2), main=expression(pi(sigma^2~"(Provo Mall)|"~data)))
-curve(dinvgamma(x, gamma, phi), add=T, lty=2)
-legend("topright", c("Prior", "Posterior"), lty=c(1,.5))
+legend("topright", c("Prior", "Posterior"), lty=c(1, 2), cex=0.5, bty="n")
 
-# POSTERIOR distribution of the dif(mu.1 and mu.2)
+plot(density(sigma2.2.use), xlab=expression(sigma^2), 
+     main=expression(pi(sigma^2~"(Provo Mall)|"~data)))
+curve(dinvgamma(x, gamma, phi), add=T, lty=2)
+legend("topright", c("Prior", "Posterior"), lty=c(1, 2), cex=0.5, bty="n")
+
+# POSTERIOR distribution of the difference (mu.1 - mu.2)
 diffs <- mu.1.use - mu.2.use
-plot(density(diffs), xlab=expression(mu), ylab="density", main=expression(pi(mu~"(University Mall - Provo) |"~data)))
-legend("topleft", c("Distribution \nof the differences"), lty=c(1, 1))
+plot(density(diffs), xlab=expression(mu), ylab="density", 
+     main=expression(pi(mu~"(University Mall - Provo) |"~data)))
+legend("topleft", c("Differences"), lty=c(1), cex=0.5, bty="n")
 ```
 
 ```{r}
